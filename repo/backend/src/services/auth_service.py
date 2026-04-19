@@ -208,6 +208,7 @@ class AuthService:
             trace_id=trace_id,
             ip_address=ip_address,
         )
+        await self.session.commit()
 
     async def _find_active_device(
         self, user_id: uuid.UUID, fingerprint: str
@@ -255,9 +256,13 @@ class AuthService:
                 trace_id=trace_id,
                 ip_address=ip_address,
             )
+            await self.session.commit()
             raise AuthError("Refresh token reuse detected; session revoked.")
 
-        if stored.expires_at <= now:
+        expires_at = stored.expires_at
+        if expires_at.tzinfo is None:
+            expires_at = expires_at.replace(tzinfo=timezone.utc)
+        if expires_at <= now:
             raise AuthError("Refresh token is expired.")
 
         user = await self.repo.get_user_by_id(family.user_id)

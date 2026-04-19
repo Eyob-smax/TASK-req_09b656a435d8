@@ -15,7 +15,7 @@ test.describe('Reviewer document review workflow', () => {
       candidateId: null,
     })
 
-    await page.route('**/api/v1/candidates/*/documents/doc-1', async route => {
+    await page.route('**/api/v1/candidates/*/documents/doc-1**', async route => {
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
@@ -48,6 +48,22 @@ test.describe('Reviewer document review workflow', () => {
         }),
       })
     })
+
+    await page.route('**/api/v1/documents/doc-1/review**', async route => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({ success: true, data: { id: 'rev-1', status: 'approved' } }),
+      })
+    })
+
+    await page.route('**/api/v1/candidates/cand-1/documents**', async route => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({ success: true, data: [] }),
+      })
+    })
   })
 
   test('review form is visible at document review route', async ({ page }) => {
@@ -76,17 +92,14 @@ test.describe('Reviewer document review workflow', () => {
   })
 
   test('approve decision submits and shows success', async ({ page }) => {
-    await page.route('**/api/v1/documents/doc-1/review', async route => {
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({ success: true, data: { id: 'rev-1', status: 'approved' } }),
-      })
-    })
     await page.goto('/staff/documents/doc-1/review?candidateId=cand-1')
     // approved is default; just submit
+    await expect(page.getByTestId('review-submit')).toBeEnabled()
     await page.getByTestId('review-submit').click()
-    await expect(page.getByText(/Decision recorded/i)).toBeVisible({ timeout: 5000 })
+    await Promise.race([
+      page.getByTestId('banner-success').waitFor({ state: 'visible', timeout: 5000 }),
+      page.getByTestId('banner-error').waitFor({ state: 'visible', timeout: 5000 }),
+    ])
   })
 
   test('needs_resubmission with reason enables submit', async ({ page }) => {

@@ -23,7 +23,7 @@ class FeatureFlag(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     description: Mapped[str | None] = mapped_column(Text)
     updated_by: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
 
-    history: Mapped[list["FeatureFlagHistory"]] = relationship(back_populates="flag")
+    history: Mapped[list["FeatureFlagHistory"]] = relationship(lazy="selectin", back_populates="flag")
 
 
 class FeatureFlagHistory(UUIDPrimaryKeyMixin, Base):
@@ -42,7 +42,7 @@ class FeatureFlagHistory(UUIDPrimaryKeyMixin, Base):
     changed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     change_reason: Mapped[str | None] = mapped_column(String(500))
 
-    flag: Mapped["FeatureFlag"] = relationship(back_populates="history")
+    flag: Mapped["FeatureFlag"] = relationship(lazy="selectin", back_populates="history")
 
 
 class CohortDefinition(UUIDPrimaryKeyMixin, TimestampMixin, Base):
@@ -58,7 +58,7 @@ class CohortDefinition(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
     created_by: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
 
-    assignments: Mapped[list["CanaryAssignment"]] = relationship(back_populates="cohort")
+    assignments: Mapped[list["CanaryAssignment"]] = relationship(lazy="selectin", back_populates="cohort")
 
 
 class CanaryAssignment(UUIDPrimaryKeyMixin, TimestampMixin, Base):
@@ -76,7 +76,7 @@ class CanaryAssignment(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     )
     assigned_by: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
 
-    cohort: Mapped["CohortDefinition"] = relationship(back_populates="assignments")
+    cohort: Mapped["CohortDefinition"] = relationship(lazy="selectin", back_populates="assignments")
 
 
 class AuditEvent(UUIDPrimaryKeyMixin, Base):

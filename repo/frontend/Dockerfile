@@ -1,9 +1,10 @@
-FROM node:20-alpine AS builder
+FROM node:20-bookworm-slim AS builder
 
 WORKDIR /app
 
 COPY package.json package-lock.json* ./
 RUN npm ci --prefer-offline
+RUN npx playwright install --with-deps chromium
 
 COPY . .
 

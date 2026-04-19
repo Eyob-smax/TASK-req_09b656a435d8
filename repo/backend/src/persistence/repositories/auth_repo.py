@@ -23,6 +23,12 @@ from ..models.auth import (
 )
 
 
+def _as_utc(dt: datetime) -> datetime:
+    if dt.tzinfo is None:
+        return dt.replace(tzinfo=timezone.utc)
+    return dt
+
+
 class AuthRepository:
     def __init__(self, session: AsyncSession) -> None:
         self.session = session
@@ -270,7 +276,7 @@ class AuthRepository:
             return None
         if row.user_id != user_id:
             return None
-        if row.expires_at <= now:
+        if _as_utc(row.expires_at) <= _as_utc(now):
             await self.session.delete(row)
             await self.session.flush()
             return None

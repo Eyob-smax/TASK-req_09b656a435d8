@@ -23,15 +23,29 @@ test.describe('Order payment submission workflow', () => {
       candidateId: 'cand-1',
     })
 
-    await page.route('**/api/v1/orders/order-1', async route => {
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({ success: true, data: FAKE_ORDER }),
-      })
+    await page.route('**/api/v1/orders/**', async route => {
+      const url = route.request().url()
+      const method = route.request().method()
+      if (method === 'GET' && /\/api\/v1\/orders\/order-1(?:\?|$)/.test(url)) {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({ success: true, data: FAKE_ORDER }),
+        })
+        return
+      }
+      if (method === 'POST' && /\/api\/v1\/orders\/order-1\/payment\/proof(?:\?|$)/.test(url)) {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({ success: true, data: { id: 'pay-1', confirmed_by: null } }),
+        })
+        return
+      }
+      await route.continue()
     })
 
-    await page.route('**/api/v1/services', async route => {
+    await page.route('**/api/v1/services**', async route => {
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
@@ -58,6 +72,7 @@ test.describe('Order payment submission workflow', () => {
   test('payment view renders with correct order amount pre-filled', async ({ page }) => {
     await page.goto('/candidate/orders/order-1/payment')
     await expect(page.getByTestId('payment-view')).toBeVisible()
+    await expect(page.getByTestId('field-payment-method')).toBeVisible()
     await expect(page.getByTestId('field-amount')).toHaveValue('1200.00')
   })
 
@@ -69,14 +84,8 @@ test.describe('Order payment submission workflow', () => {
   })
 
   test('submit proof shows success banner and hides form', async ({ page }) => {
-    await page.route('**/api/v1/orders/order-1/payment/proof', async route => {
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({ success: true, data: { id: 'pay-1', confirmed_by: null } }),
-      })
-    })
     await page.goto('/candidate/orders/order-1/payment')
+    await expect(page.getByTestId('field-payment-method')).toBeVisible()
     await page.getByTestId('field-payment-method').selectOption('bank_transfer')
     await page.getByTestId('field-reference-number').fill('TXN-12345')
     await page.getByTestId('payment-submit').click()

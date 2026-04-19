@@ -5,20 +5,32 @@ import { setActivePinia, createPinia } from 'pinia'
 import { mount, flushPromises } from '@vue/test-utils'
 import ExportsView from '@/views/admin/ExportsView.vue'
 
-const MOCK_JOB = {
-  id: 'job-1',
-  requested_by: 'admin-1',
-  export_type: 'audit_csv',
-  status: 'completed',
-  sha256_hash: 'a'.repeat(64),
-  watermark_applied: true,
-  completed_at: '2024-01-01T00:00:00Z',
-  created_at: '2024-01-01T00:00:00Z',
-}
-
 vi.mock('@/services/adminApi', () => ({
-  listExports: vi.fn().mockResolvedValue({ data: [MOCK_JOB], pagination: { total: 1 } }),
-  createExport: vi.fn().mockResolvedValue(MOCK_JOB),
+  listExports: vi.fn().mockResolvedValue({
+    data: [
+      {
+        id: 'job-1',
+        requested_by: 'admin-1',
+        export_type: 'audit_csv',
+        status: 'completed',
+        sha256_hash: 'a'.repeat(64),
+        watermark_applied: true,
+        completed_at: '2024-01-01T00:00:00Z',
+        created_at: '2024-01-01T00:00:00Z',
+      },
+    ],
+    pagination: { total: 1 },
+  }),
+  createExport: vi.fn().mockResolvedValue({
+    id: 'job-1',
+    requested_by: 'admin-1',
+    export_type: 'audit_csv',
+    status: 'completed',
+    sha256_hash: 'a'.repeat(64),
+    watermark_applied: true,
+    completed_at: '2024-01-01T00:00:00Z',
+    created_at: '2024-01-01T00:00:00Z',
+  }),
   getFlags: vi.fn().mockResolvedValue([]),
   updateFlag: vi.fn(),
   listCohorts: vi.fn().mockResolvedValue([]),

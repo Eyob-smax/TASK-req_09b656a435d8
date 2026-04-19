@@ -177,6 +177,9 @@ class ConfigService:
 
     async def remove_user_cohort(self, cohort_id: uuid.UUID, user_id: uuid.UUID, actor: Actor) -> None:
         _require_admin(actor)
+        assignment = await self.repo.get_user_assignment(user_id)
+        if assignment is None or assignment.cohort_id != cohort_id:
+            raise ResourceNotFoundError("User is not assigned to the specified cohort.")
         await self.repo.remove_user_assignment(user_id)
 
     # ── Canary routing / bootstrap config ────────────────────────────────

@@ -69,11 +69,11 @@ class BargainingService:
             raise BusinessRuleError("Offers can only be submitted on pending_payment orders.")
 
         thread = await self.get_or_create_thread(order_id, now)
-        existing_offers = thread.offers or []
+        existing_offer_count = await self._repo.count_offers(thread.id)
 
         try:
             can_submit_offer(
-                current_offer_count=len(existing_offers),
+                current_offer_count=existing_offer_count,
                 window_start=thread.window_starts_at,
                 now=now,
                 max_offers=settings.max_bargaining_offers,
@@ -86,7 +86,7 @@ class BargainingService:
 
         offer = await self._repo.add_offer(
             thread=thread,
-            offer_number=len(existing_offers) + 1,
+            offer_number=existing_offer_count + 1,
             amount=amount,
             submitted_by=uuid.UUID(candidate_actor.user_id),
         )

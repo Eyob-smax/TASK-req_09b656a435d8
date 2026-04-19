@@ -21,13 +21,13 @@ export interface TestAuthSeedState {
 }
 
 export async function seedAuth(page: Page, state: TestAuthSeedState): Promise<void> {
-  await page.evaluate((payload) => {
+  await page.evaluate(async (payload) => {
     const w = window as unknown as {
-      __seedAuthForTests?: (state: unknown) => void
+      __seedAuthForTests?: (state: unknown) => Promise<void>
     }
     if (typeof w.__seedAuthForTests !== 'function') {
       throw new Error('__seedAuthForTests is not available in this build')
     }
-    w.__seedAuthForTests(payload)
+    await w.__seedAuthForTests(payload)
   }, state)
 }

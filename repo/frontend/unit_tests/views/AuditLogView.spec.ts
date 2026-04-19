@@ -5,24 +5,22 @@ import { setActivePinia, createPinia } from 'pinia'
 import { mount, flushPromises } from '@vue/test-utils'
 import AuditLogView from '@/views/admin/AuditLogView.vue'
 
-const MOCK_ENTRIES = [
-  {
-    id: 'ae-1',
-    event_type: 'login_success',
-    actor_id: 'user-abc',
-    actor_role: 'candidate',
-    resource_type: 'user',
-    resource_id: 'user-abc',
-    occurred_at: '2024-01-01T10:00:00Z',
-    trace_id: 'trace-1',
-    outcome: 'success',
-    detail: null,
-  },
-]
-
 vi.mock('@/services/adminApi', () => ({
   searchAudit: vi.fn().mockResolvedValue({
-    data: MOCK_ENTRIES,
+    data: [
+      {
+        id: 'ae-1',
+        event_type: 'login_success',
+        actor_id: 'user-abc',
+        actor_role: 'candidate',
+        resource_type: 'user',
+        resource_id: 'user-abc',
+        occurred_at: '2024-01-01T10:00:00Z',
+        trace_id: 'trace-1',
+        outcome: 'success',
+        detail: null,
+      },
+    ],
     pagination: { total: 1, page: 1, page_size: 20, total_pages: 1 },
   }),
   getFlags: vi.fn().mockResolvedValue([]),

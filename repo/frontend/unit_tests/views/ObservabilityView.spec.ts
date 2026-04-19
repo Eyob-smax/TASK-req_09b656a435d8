@@ -5,31 +5,27 @@ import { setActivePinia, createPinia } from 'pinia'
 import { mount, flushPromises } from '@vue/test-utils'
 import ObservabilityView from '@/views/admin/ObservabilityView.vue'
 
-const MOCK_METRICS = {
-  merittrack_login_attempts_total: { type: 'counter', total: 42, by_label: {} },
-  merittrack_request_duration_seconds: { type: 'histogram', observations: 1000, sum: 25.5, avg: 0.0255 },
-}
-
-const MOCK_CACHE = {
-  data: [
-    {
-      id: 'cs-1',
-      window_start: '2024-01-01T00:00:00Z',
-      window_end: '2024-01-01T00:15:00Z',
-      asset_group: 'static',
-      total_requests: 200,
-      cache_hits: 190,
-      cache_misses: 10,
-      hit_rate_pct: 95.0,
-      computed_at: '2024-01-01T00:15:00Z',
-    },
-  ],
-  pagination: { total: 1 },
-}
-
 vi.mock('@/services/adminApi', () => ({
-  getMetricsSummary: vi.fn().mockResolvedValue(MOCK_METRICS),
-  listCacheStats: vi.fn().mockResolvedValue(MOCK_CACHE),
+  getMetricsSummary: vi.fn().mockResolvedValue({
+    merittrack_login_attempts_total: { type: 'counter', total: 42, by_label: {} },
+    merittrack_request_duration_seconds: { type: 'histogram', observations: 1000, sum: 25.5, avg: 0.0255 },
+  }),
+  listCacheStats: vi.fn().mockResolvedValue({
+    data: [
+      {
+        id: 'cs-1',
+        window_start: '2024-01-01T00:00:00Z',
+        window_end: '2024-01-01T00:15:00Z',
+        asset_group: 'static',
+        total_requests: 200,
+        cache_hits: 190,
+        cache_misses: 10,
+        hit_rate_pct: 95.0,
+        computed_at: '2024-01-01T00:15:00Z',
+      },
+    ],
+    pagination: { total: 1 },
+  }),
   getFlags: vi.fn().mockResolvedValue([]),
   updateFlag: vi.fn(),
   listCohorts: vi.fn().mockResolvedValue([]),

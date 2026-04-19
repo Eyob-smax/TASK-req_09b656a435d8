@@ -117,8 +117,8 @@ class DeviceActivateRequest(BaseModel):
 
 class DeviceRotateRequest(BaseModel):
     new_public_key_pem: str = Field(..., min_length=1)
-    nonce: str = Field(..., min_length=1, max_length=64)
-    timestamp: str = Field(...)
+    nonce: str | None = Field(None, min_length=1, max_length=64)
+    timestamp: str | None = Field(None)
 
 
 class LogoutRequest(BaseModel):

@@ -175,6 +175,12 @@ class AttendanceRepository:
         await self.session.flush()
         return step
 
+    async def count_review_steps(self, exception_id: uuid.UUID) -> int:
+        q = select(func.count()).select_from(ExceptionReviewStep).where(
+            ExceptionReviewStep.exception_id == exception_id
+        )
+        return int((await self.session.execute(q)).scalar_one())
+
     async def add_approval(
         self,
         step_id: uuid.UUID,

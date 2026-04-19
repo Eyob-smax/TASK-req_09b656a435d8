@@ -67,6 +67,7 @@ class CandidateRepository:
         for key, value in fields.items():
             setattr(profile, key, value)
         await self.session.flush()
+        await self.session.refresh(profile)
 
     # ── Exam scores ───────────────────────────────────────────────────────────
 
@@ -112,6 +113,7 @@ class CandidateRepository:
         for key, value in fields.items():
             setattr(pref, key, value)
         await self.session.flush()
+        await self.session.refresh(pref)
 
     # ── Profile history ───────────────────────────────────────────────────────
 

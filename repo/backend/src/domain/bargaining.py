@@ -53,11 +53,11 @@ def is_window_expired(
     window_hours: int = WINDOW_HOURS,
 ) -> bool:
     """Return True if the bargaining window has elapsed."""
-    deadline = window_start + timedelta(hours=window_hours)
     if now.tzinfo is None:
         now = now.replace(tzinfo=timezone.utc)
     if window_start.tzinfo is None:
         window_start = window_start.replace(tzinfo=timezone.utc)
+    deadline = window_start + timedelta(hours=window_hours)
     return now >= deadline
 
 

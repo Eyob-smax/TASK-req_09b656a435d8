@@ -77,15 +77,33 @@ async function download(): Promise<void> {
       <fieldset class="review-form__fieldset">
         <legend>Decision</legend>
         <label>
-          <input v-model="decision.status" type="radio" value="approved" data-testid="decision-approved" />
+          <input
+            v-model="decision.status"
+            type="radio"
+            value="approved"
+            data-testid="decision-approved"
+            @click="decision.status = 'approved'"
+          />
           Approve
         </label>
         <label>
-          <input v-model="decision.status" type="radio" value="rejected" data-testid="decision-rejected" />
+          <input
+            v-model="decision.status"
+            type="radio"
+            value="rejected"
+            data-testid="decision-rejected"
+            @click="decision.status = 'rejected'"
+          />
           Reject
         </label>
         <label>
-          <input v-model="decision.status" type="radio" value="needs_resubmission" data-testid="decision-resubmit" />
+          <input
+            v-model="decision.status"
+            type="radio"
+            value="needs_resubmission"
+            data-testid="decision-resubmit"
+            @click="decision.status = 'needs_resubmission'"
+          />
           Needs Resubmission
         </label>
       </fieldset>

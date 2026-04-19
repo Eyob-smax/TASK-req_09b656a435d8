@@ -38,9 +38,9 @@ class CandidateProfile(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     notes: Mapped[str | None] = mapped_column(Text)
     deleted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
-    exam_scores: Mapped[list["ExamScore"]] = relationship(back_populates="candidate")
-    transfer_preferences: Mapped[list["TransferPreference"]] = relationship(back_populates="candidate")
-    history: Mapped[list["ProfileHistory"]] = relationship(back_populates="candidate")
+    exam_scores: Mapped[list["ExamScore"]] = relationship(lazy="selectin", back_populates="candidate")
+    transfer_preferences: Mapped[list["TransferPreference"]] = relationship(lazy="selectin", back_populates="candidate")
+    history: Mapped[list["ProfileHistory"]] = relationship(lazy="selectin", back_populates="candidate")
 
 
 class ExamScore(UUIDPrimaryKeyMixin, TimestampMixin, Base):
@@ -60,7 +60,7 @@ class ExamScore(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     exam_date: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     recorded_by: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
 
-    candidate: Mapped["CandidateProfile"] = relationship(back_populates="exam_scores")
+    candidate: Mapped["CandidateProfile"] = relationship(lazy="selectin", back_populates="exam_scores")
 
 
 class TransferPreference(UUIDPrimaryKeyMixin, TimestampMixin, Base):
@@ -78,7 +78,7 @@ class TransferPreference(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     notes: Mapped[str | None] = mapped_column(Text)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
 
-    candidate: Mapped["CandidateProfile"] = relationship(back_populates="transfer_preferences")
+    candidate: Mapped["CandidateProfile"] = relationship(lazy="selectin", back_populates="transfer_preferences")
 
 
 class ProfileHistory(UUIDPrimaryKeyMixin, Base):
@@ -97,4 +97,4 @@ class ProfileHistory(UUIDPrimaryKeyMixin, Base):
     new_value_encrypted: Mapped[str | None] = mapped_column(Text)
     change_reason: Mapped[str | None] = mapped_column(String(500))
 
-    candidate: Mapped["CandidateProfile"] = relationship(back_populates="history")
+    candidate: Mapped["CandidateProfile"] = relationship(lazy="selectin", back_populates="history")

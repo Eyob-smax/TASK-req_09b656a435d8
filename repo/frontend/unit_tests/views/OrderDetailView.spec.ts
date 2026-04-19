@@ -7,32 +7,37 @@ import { createRouter, createMemoryHistory } from 'vue-router'
 import OrderDetailView from '@/views/candidate/orders/OrderDetailView.vue'
 import { useOrderStore } from '@/stores/order'
 
-const MOCK_EVENT = {
-  id: 'evt-1',
-  sequence_number: 1,
-  previous_state: null,
-  new_state: 'pending_payment',
-  actor_id: 'user-1',
-  actor_role: 'candidate',
-  notes: 'Order created',
-  occurred_at: '2024-01-01T00:00:00Z',
-}
-
-const MOCK_ORDER_PENDING_PAYMENT = {
-  id: 'order-1',
-  candidate_id: 'user-1',
-  item_id: 'item-1',
-  status: 'pending_payment',
-  pricing_mode: 'fixed',
-  agreed_price: null,
-  auto_cancel_at: new Date(Date.now() + 30 * 60 * 1000).toISOString(),
-  canceled_at: null,
-  cancellation_reason: null,
-  completed_at: null,
-  created_at: '2024-01-01T00:00:00Z',
-  updated_at: '2024-01-01T00:00:00Z',
-  events: [MOCK_EVENT],
-}
+const {
+  MOCK_EVENT,
+  MOCK_ORDER_PENDING_PAYMENT,
+} = vi.hoisted(() => {
+  const event = {
+    id: 'evt-1',
+    sequence_number: 1,
+    previous_state: null,
+    new_state: 'pending_payment',
+    actor_id: 'user-1',
+    actor_role: 'candidate',
+    notes: 'Order created',
+    occurred_at: '2024-01-01T00:00:00Z',
+  }
+  const pending = {
+    id: 'order-1',
+    candidate_id: 'user-1',
+    item_id: 'item-1',
+    status: 'pending_payment',
+    pricing_mode: 'fixed',
+    agreed_price: null,
+    auto_cancel_at: new Date(Date.now() + 30 * 60 * 1000).toISOString(),
+    canceled_at: null,
+    cancellation_reason: null,
+    completed_at: null,
+    created_at: '2024-01-01T00:00:00Z',
+    updated_at: '2024-01-01T00:00:00Z',
+    events: [event],
+  }
+  return { MOCK_EVENT: event, MOCK_ORDER_PENDING_PAYMENT: pending }
+})
 
 const MOCK_ORDER_BARGAINING = {
   ...MOCK_ORDER_PENDING_PAYMENT,

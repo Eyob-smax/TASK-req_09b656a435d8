@@ -76,6 +76,25 @@ class TraceIdMiddleware(BaseHTTPMiddleware):
         return response
 
 
+class BodyBufferMiddleware(BaseHTTPMiddleware):
+    """Buffer request body once and replay it for downstream consumers."""
+
+    async def dispatch(self, request: Request, call_next):
+        body = await request.body()
+        request.state.raw_body = body
+        sent = False
+
+        async def _receive() -> dict:
+            nonlocal sent
+            if not sent:
+                sent = True
+                return {"type": "http.request", "body": body, "more_body": False}
+            return {"type": "http.disconnect"}
+
+        request._receive = _receive  # type: ignore[attr-defined]
+        return await call_next(request)
+
+
 class AccessLogMiddleware(BaseHTTPMiddleware):
     """
     Emit one structured log per request with method/path/status/duration.

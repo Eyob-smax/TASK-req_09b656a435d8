@@ -27,7 +27,7 @@ export class HttpError extends Error {
   status: number
   envelope: ApiError
   constructor(status: number, envelope: ApiError) {
-    super(envelope?.error?.message ?? `HTTP ${status}`)
+    super(envelope?.error?.message?.trim() || `HTTP ${status}`)
     this.status = status
     this.envelope = envelope
   }

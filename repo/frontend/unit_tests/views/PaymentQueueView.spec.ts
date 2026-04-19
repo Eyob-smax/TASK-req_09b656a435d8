@@ -8,16 +8,17 @@ import { mount, flushPromises } from '@vue/test-utils'
 import PaymentQueueView from '@/views/staff/orders/PaymentQueueView.vue'
 import { useQueueStore } from '@/stores/queue'
 
-const MOCK_PAYMENT = {
-  order_id: 'order-1',
-  item_name: 'NMAT Review',
-  amount: '1200.00',
-  payment_method: 'bank_transfer',
-  reference_number: 'REF-001',
-  submitted_at: '2024-01-01T00:00:00Z',
-}
-
-const confirmPaymentMock = vi.fn().mockResolvedValue({ id: 'order-1', status: 'pending_fulfillment' })
+const { MOCK_PAYMENT, confirmPaymentMock } = vi.hoisted(() => ({
+  MOCK_PAYMENT: {
+    order_id: 'order-1',
+    item_name: 'NMAT Review',
+    amount: '1200.00',
+    payment_method: 'bank_transfer',
+    reference_number: 'REF-001',
+    submitted_at: '2024-01-01T00:00:00Z',
+  },
+  confirmPaymentMock: vi.fn().mockResolvedValue({ id: 'order-1', status: 'pending_fulfillment' }),
+}))
 
 vi.mock('@/services/paymentApi', () => ({
   confirmPayment: (...args: unknown[]) => confirmPaymentMock(...args),

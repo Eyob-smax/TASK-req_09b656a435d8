@@ -34,6 +34,7 @@ class ProofUploadResponse(BaseModel):
     proof_id: uuid.UUID
     exception_id: uuid.UUID
     document_version_id: uuid.UUID
+    original_filename: str
     uploaded_at: datetime
 
 

@@ -27,7 +27,7 @@ async def error_client(_install_jwt_keys):
         raise RuntimeError("ultra-secret internal detail: TOKEN=abcdefg")
 
     async with AsyncClient(
-        transport=ASGITransport(app=app), base_url="http://test"
+        transport=ASGITransport(app=app, raise_app_exceptions=False), base_url="http://test"
     ) as c:
         yield c
 

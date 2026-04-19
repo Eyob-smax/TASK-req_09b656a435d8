@@ -82,6 +82,7 @@ class ConfigRepository:
         flag.value = new_value
         flag.updated_by = changed_by
         await self.session.flush()
+        await self.session.refresh(flag)
         return history
 
     async def list_flag_history(self, flag_id: uuid.UUID) -> list[FeatureFlagHistory]:

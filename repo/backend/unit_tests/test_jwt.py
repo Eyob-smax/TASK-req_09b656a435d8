@@ -55,13 +55,12 @@ def test_tampered_token_raises():
 
 
 def test_algorithm_confusion_rejected():
-    # Build an HS256 token with the public key as the HMAC secret — must be rejected.
+    # Build an HS256 token; verifier only accepts configured RS256 and must reject it.
     import jose.jwt as jose_jwt
 
-    _, pub = jwt_mod._ensure_keys()  # type: ignore[attr-defined]
     attacker_token = jose_jwt.encode(
         {"sub": "attacker", "iss": "merittrack", "aud": "merittrack-app", "exp": 9999999999},
-        pub.decode(),
+        "attacker-shared-secret",
         algorithm="HS256",
     )
     with pytest.raises(TokenInvalidError):

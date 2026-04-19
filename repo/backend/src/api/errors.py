@@ -94,6 +94,8 @@ async def _http_exception_handler(request: Request, exc: StarletteHTTPException)
         code, message = "CONFLICT", "Conflict."
     elif exc.status_code == 429:
         code, message = "RATE_LIMITED", "Rate limited."
+    elif exc.status_code >= 500:
+        code, message = "INTERNAL_ERROR", "An internal error occurred."
     else:
         code, message = "HTTP_ERROR", str(exc.detail) if exc.detail else "Request failed."
     logger.info("http_exception", code=code, path=request.url.path, http_status=exc.status_code)

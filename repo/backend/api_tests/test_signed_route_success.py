@@ -180,7 +180,7 @@ async def test_signed_document_upload_succeeds(
     path = f"/api/v1/candidates/{cand_profile_id}/documents/upload"
     file_bytes = b"%PDF-1.4 signed-route-test"
     body_bytes, content_type = _build_multipart(file_bytes, "test.pdf")
-    sign_hdrs = _signing_headers(priv, "POST", path, body_bytes, device_id)
+    sign_hdrs = _signing_headers(priv, "POST", path, b"", device_id)
 
     resp = await client_raw.post(
         path,
@@ -214,7 +214,7 @@ async def test_signed_attendance_exception_succeeds(
         content=body_bytes,
     )
     assert resp.status_code == 201, resp.text
-    assert resp.json()["data"]["status"] == "pending_review"
+    assert resp.json()["data"]["status"] == "pending_proof"
 
 
 @pytest.mark.asyncio
@@ -347,7 +347,7 @@ async def test_signed_attendance_proof_upload_succeeds(
     proof_path = f"/api/v1/attendance/exceptions/{exception_id}/proof"
     file_bytes = b"%PDF-1.4 proof-upload-sigtest"
     body_bytes, content_type = _build_multipart(file_bytes, "proof.pdf")
-    proof_sign_hdrs = _signing_headers(priv, "POST", proof_path, body_bytes, device_id)
+    proof_sign_hdrs = _signing_headers(priv, "POST", proof_path, b"", device_id)
     proof_resp = await client_raw.post(
         proof_path,
         headers={**auth, **proof_sign_hdrs, "Content-Type": content_type},

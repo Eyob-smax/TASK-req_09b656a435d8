@@ -6,7 +6,15 @@ from __future__ import annotations
 from datetime import datetime, timedelta, timezone
 
 
+def _as_utc(dt: datetime) -> datetime:
+    if dt.tzinfo is None:
+        return dt.replace(tzinfo=timezone.utc)
+    return dt
+
+
 def window_contains(window_start: datetime, now: datetime, window_minutes: int) -> bool:
+    window_start = _as_utc(window_start)
+    now = _as_utc(now)
     return now - window_start < timedelta(minutes=window_minutes)
 
 
@@ -28,6 +36,8 @@ def should_throttle(
 def is_locked(locked_until: datetime | None, now: datetime) -> bool:
     if locked_until is None:
         return False
+    locked_until = _as_utc(locked_until)
+    now = _as_utc(now)
     return now < locked_until
 
 

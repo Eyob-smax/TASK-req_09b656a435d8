@@ -24,7 +24,7 @@ async def _do_upload(client, cand_token: str, profile_id: str, file_bytes: bytes
     device_id, priv = await register_device(client, auth)
     path = f"/api/v1/candidates/{profile_id}/documents/upload"
     body_bytes, content_type = build_multipart(file_bytes, filename, mime)
-    sign_hdrs = make_signing_headers(priv, "POST", path, body_bytes, device_id)
+    sign_hdrs = make_signing_headers(priv, "POST", path, b"", device_id)
     return await client.post(path, headers={**auth, **sign_hdrs, "Content-Type": content_type}, content=body_bytes)
 
 

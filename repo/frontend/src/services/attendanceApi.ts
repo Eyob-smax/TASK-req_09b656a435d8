@@ -78,7 +78,10 @@ export async function uploadProof(
   const auth = useAuthStore()
   const path = `/api/v1/attendance/exceptions/${encodeURIComponent(exceptionId)}/proof`
 
-  const fileBytes = new Uint8Array(await file.arrayBuffer())
+  const buffer = typeof file.arrayBuffer === 'function'
+    ? await file.arrayBuffer()
+    : await new Response(file).arrayBuffer()
+  const fileBytes = new Uint8Array(buffer)
 
   const headers: Record<string, string> = {}
   if (auth.tokens?.access_token) headers['Authorization'] = `Bearer ${auth.tokens.access_token}`

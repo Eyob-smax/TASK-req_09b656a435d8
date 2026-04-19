@@ -5,20 +5,32 @@ import { setActivePinia, createPinia } from 'pinia'
 import { mount, flushPromises } from '@vue/test-utils'
 import ForecastView from '@/views/admin/ForecastView.vue'
 
-const MOCK_SNAPSHOT = {
-  id: 'snap-1',
-  computed_at: '2024-01-01T00:00:00Z',
-  forecast_horizon_days: 30,
-  input_window_days: 90,
-  bandwidth_p50_bytes: 512_000,
-  bandwidth_p95_bytes: 5_120_000,
-  request_volume_forecast: { '2024-01-02': 100 },
-  upload_volume_trend: { avg_daily_requests: 9600 },
-}
-
 vi.mock('@/services/adminApi', () => ({
-  listForecasts: vi.fn().mockResolvedValue({ data: [MOCK_SNAPSHOT], pagination: { total: 1 } }),
-  triggerForecast: vi.fn().mockResolvedValue(MOCK_SNAPSHOT),
+  listForecasts: vi.fn().mockResolvedValue({
+    data: [
+      {
+        id: 'snap-1',
+        computed_at: '2024-01-01T00:00:00Z',
+        forecast_horizon_days: 30,
+        input_window_days: 90,
+        bandwidth_p50_bytes: 512_000,
+        bandwidth_p95_bytes: 5_120_000,
+        request_volume_forecast: { '2024-01-02': 100 },
+        upload_volume_trend: { avg_daily_requests: 9600 },
+      },
+    ],
+    pagination: { total: 1 },
+  }),
+  triggerForecast: vi.fn().mockResolvedValue({
+    id: 'snap-1',
+    computed_at: '2024-01-01T00:00:00Z',
+    forecast_horizon_days: 30,
+    input_window_days: 90,
+    bandwidth_p50_bytes: 512_000,
+    bandwidth_p95_bytes: 5_120_000,
+    request_volume_forecast: { '2024-01-02': 100 },
+    upload_volume_trend: { avg_daily_requests: 9600 },
+  }),
   getFlags: vi.fn().mockResolvedValue([]),
   updateFlag: vi.fn(),
   listCohorts: vi.fn().mockResolvedValue([]),

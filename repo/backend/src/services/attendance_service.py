@@ -127,7 +127,8 @@ class AttendanceService:
             resource_id=str(exception.id),
             outcome="created",
         )
-        return _exception_to_read(exception)
+        loaded = await self._repo.get_exception(exception.id)
+        return _exception_to_read(loaded or exception)
 
     async def list_exceptions(
         self,
@@ -249,6 +250,7 @@ class AttendanceService:
             proof_id=proof.id,
             exception_id=exception_id,
             document_version_id=doc_version_id,
+            original_filename=original_filename,
             uploaded_at=now,
         )
 
@@ -276,7 +278,7 @@ class AttendanceService:
         new_status = resolve_status(stage, decision)
         is_escalated = (decision == ReviewDecision.escalate)
 
-        step_order = len(exception.review_steps or []) + 1
+        step_order = (await self._repo.count_review_steps(exception_id)) + 1
         now = _now()
         step = await self._repo.add_review_step(
             exception_id=exception_id,

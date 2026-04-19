@@ -7,54 +7,59 @@ import { createRouter, createMemoryHistory } from 'vue-router'
 import OrderListView from '@/views/candidate/orders/OrderListView.vue'
 import { useOrderStore } from '@/stores/order'
 
-const MOCK_PAGINATION = { page: 1, page_size: 20, total: 1, total_pages: 1 }
-
-const MOCK_ORDER_PENDING = {
-  id: 'order-1',
-  candidate_id: 'user-1',
-  item_id: 'item-1',
-  status: 'pending_payment',
-  pricing_mode: 'fixed',
-  agreed_price: null,
-  auto_cancel_at: new Date(Date.now() + 30 * 60 * 1000).toISOString(),
-  canceled_at: null,
-  cancellation_reason: null,
-  completed_at: null,
-  created_at: '2024-01-01T00:00:00Z',
-  updated_at: '2024-01-01T00:00:00Z',
-  events: [],
-}
+const {
+  MOCK_PAGINATION,
+  MOCK_ORDER_PENDING,
+  MOCK_ITEMS,
+} = vi.hoisted(() => {
+  const pagination = { page: 1, page_size: 20, total: 1, total_pages: 1 }
+  const orderPending = {
+    id: 'order-1',
+    candidate_id: 'user-1',
+    item_id: 'item-1',
+    status: 'pending_payment',
+    pricing_mode: 'fixed',
+    agreed_price: null,
+    auto_cancel_at: new Date(Date.now() + 30 * 60 * 1000).toISOString(),
+    canceled_at: null,
+    cancellation_reason: null,
+    completed_at: null,
+    created_at: '2024-01-01T00:00:00Z',
+    updated_at: '2024-01-01T00:00:00Z',
+    events: [],
+  }
+  const items = [
+    {
+      id: 'item-1',
+      item_code: 'SVC-1',
+      name: 'NMAT Review',
+      description: null,
+      pricing_mode: 'fixed',
+      fixed_price: '1200.00',
+      is_capacity_limited: false,
+      bargaining_enabled: false,
+      available_slots: null,
+    },
+    {
+      id: 'item-2',
+      item_code: 'SVC-2',
+      name: 'Campus Tour',
+      description: null,
+      pricing_mode: 'bargaining',
+      fixed_price: '900.00',
+      is_capacity_limited: false,
+      bargaining_enabled: true,
+      available_slots: null,
+    },
+  ]
+  return { MOCK_PAGINATION: pagination, MOCK_ORDER_PENDING: orderPending, MOCK_ITEMS: items }
+})
 
 const MOCK_ORDER_BARGAINING = {
   ...MOCK_ORDER_PENDING,
   id: 'order-2',
   pricing_mode: 'bargaining',
 }
-
-const MOCK_ITEMS = [
-  {
-    id: 'item-1',
-    item_code: 'SVC-1',
-    name: 'NMAT Review',
-    description: null,
-    pricing_mode: 'fixed',
-    fixed_price: '1200.00',
-    is_capacity_limited: false,
-    bargaining_enabled: false,
-    available_slots: null,
-  },
-  {
-    id: 'item-2',
-    item_code: 'SVC-2',
-    name: 'Campus Tour',
-    description: null,
-    pricing_mode: 'bargaining',
-    fixed_price: '900.00',
-    is_capacity_limited: false,
-    bargaining_enabled: true,
-    available_slots: null,
-  },
-]
 
 vi.mock('@/services/orderApi', () => ({
   listOrdersPaginated: vi.fn().mockResolvedValue({ data: [MOCK_ORDER_PENDING], pagination: MOCK_PAGINATION }),

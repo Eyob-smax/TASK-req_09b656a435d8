@@ -145,7 +145,9 @@ class OrderRepository:
         actor_role: str | None,
         notes: str | None = None,
     ) -> OrderEvent:
-        seq = len(order.events) + 1 if order.events is not None else 1
+        q = select(func.max(OrderEvent.sequence_number)).where(OrderEvent.order_id == order.id)
+        last_seq = (await self.session.execute(q)).scalar_one_or_none()
+        seq = (last_seq or 0) + 1
         event = OrderEvent(
             order_id=order.id,
             sequence_number=seq,
@@ -213,6 +215,12 @@ class OrderRepository:
         self.session.add(offer)
         await self.session.flush()
         return offer
+
+    async def count_offers(self, thread_id: uuid.UUID) -> int:
+        q = select(func.count()).select_from(BargainingOffer).where(
+            BargainingOffer.thread_id == thread_id
+        )
+        return int((await self.session.execute(q)).scalar_one())
 
     async def update_thread(
         self, thread: BargainingThread, **fields

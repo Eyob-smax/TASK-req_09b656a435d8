@@ -296,7 +296,7 @@ async def signed_post_multipart(
     else:
         device_id, priv = device
     body, ct = build_multipart(file_bytes, filename, file_content_type=content_type)
-    headers = make_signing_headers(priv, "POST", path, body, device_id)
+    headers = make_signing_headers(priv, "POST", path, b"", device_id)
     return await client.post(
         path,
         headers={**auth, **headers, "Content-Type": ct},

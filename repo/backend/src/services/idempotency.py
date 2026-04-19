@@ -52,7 +52,10 @@ class IdempotencyStore:
         if row is None:
             return None
         now = datetime.now(tz=timezone.utc)
-        if row.expires_at <= now:
+        expires_at = row.expires_at
+        if expires_at.tzinfo is None:
+            expires_at = expires_at.replace(tzinfo=timezone.utc)
+        if expires_at <= now:
             return None
         if row.request_hash != hash_request_body(request_body):
             raise IdempotencyConflictError(

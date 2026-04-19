@@ -6,7 +6,7 @@ from sqlalchemy import (
     SmallInteger, String, Text, UniqueConstraint,
 )
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column, relationship, foreign
 
 from .base import Base, TimestampMixin, UUIDPrimaryKeyMixin
 
@@ -26,9 +26,14 @@ class User(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     last_login_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     deleted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
-    device_registrations: Mapped[list["DeviceRegistration"]] = relationship(back_populates="user")
-    refresh_token_families: Mapped[list["RefreshTokenFamily"]] = relationship(back_populates="user")
-    login_throttles: Mapped[list["LoginThrottle"]] = relationship(back_populates="user")
+    device_registrations: Mapped[list["DeviceRegistration"]] = relationship(lazy="selectin", back_populates="user")
+    refresh_token_families: Mapped[list["RefreshTokenFamily"]] = relationship(lazy="selectin", back_populates="user")
+    login_throttles: Mapped[list["LoginThrottle"]] = relationship(lazy="selectin", 
+        back_populates="user",
+        primaryjoin="User.username == foreign(LoginThrottle.username)",
+        foreign_keys="LoginThrottle.username",
+        viewonly=True,
+    )
 
 
 class DeviceRegistration(UUIDPrimaryKeyMixin, TimestampMixin, Base):
@@ -47,7 +52,7 @@ class DeviceRegistration(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     last_used_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     revoked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
-    user: Mapped["User"] = relationship(back_populates="device_registrations")
+    user: Mapped["User"] = relationship(lazy="selectin", back_populates="device_registrations")
 
 
 class RefreshTokenFamily(UUIDPrimaryKeyMixin, TimestampMixin, Base):
@@ -63,8 +68,8 @@ class RefreshTokenFamily(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     invalidated_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     invalidation_reason: Mapped[str | None] = mapped_column(String(100))
 
-    user: Mapped["User"] = relationship(back_populates="refresh_token_families")
-    tokens: Mapped[list["RefreshToken"]] = relationship(back_populates="family")
+    user: Mapped["User"] = relationship(lazy="selectin", back_populates="refresh_token_families")
+    tokens: Mapped[list["RefreshToken"]] = relationship(lazy="selectin", back_populates="family")
 
 
 class RefreshToken(UUIDPrimaryKeyMixin, Base):
@@ -83,7 +88,7 @@ class RefreshToken(UUIDPrimaryKeyMixin, Base):
     consumed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     issued_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
 
-    family: Mapped["RefreshTokenFamily"] = relationship(back_populates="tokens")
+    family: Mapped["RefreshTokenFamily"] = relationship(lazy="selectin", back_populates="tokens")
 
 
 class Nonce(Base):
@@ -111,7 +116,12 @@ class LoginThrottle(UUIDPrimaryKeyMixin, Base):
     last_attempt_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     locked_until: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
-    user: Mapped["User"] = relationship(back_populates="login_throttles", foreign_keys="[LoginThrottle.username]", primaryjoin="LoginThrottle.username == User.username", viewonly=True)
+    user: Mapped["User"] = relationship(lazy="selectin", 
+        back_populates="login_throttles",
+        foreign_keys="[LoginThrottle.username]",
+        primaryjoin="LoginThrottle.username == User.username",
+        viewonly=True,
+    )
 
 
 class IdpClient(UUIDPrimaryKeyMixin, TimestampMixin, Base):

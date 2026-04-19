@@ -67,6 +67,7 @@ class PricingMode(str, Enum):
 
 
 class AnomalyType(str, Enum):
+    absent = "absent"
     missed_checkin = "missed_checkin"
     late_arrival = "late_arrival"
     early_departure = "early_departure"

@@ -5,7 +5,11 @@ from datetime import datetime, timezone
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from ..domain.document_policy import validate_review_decision, validate_upload
+from ..domain.document_policy import (
+    DocumentPolicyViolation,
+    validate_review_decision,
+    validate_upload,
+)
 from ..domain.enums import AuditEventType, DocumentStatus, UserRole
 from ..persistence.repositories.candidate_repo import CandidateRepository
 from ..persistence.repositories.document_repo import DocumentRepository
@@ -49,7 +53,10 @@ class DocumentService:
             if profile is None or str(profile.user_id) != str(actor.user_id):
                 raise ForbiddenError("Candidates may only upload documents for their own profile.")
         size_bytes = len(file_bytes)
-        validate_upload(content_type, size_bytes)
+        try:
+            validate_upload(content_type, size_bytes)
+        except DocumentPolicyViolation as exc:
+            raise PolicyViolationError(str(exc)) from exc
         sha256 = sha256_of_bytes(file_bytes)
 
         requirement = None
@@ -58,10 +65,15 @@ class DocumentService:
 
         # Create or reuse document record (one doc per requirement per candidate)
         doc = None
+        docs = await self._repo.list_candidate_documents(candidate_id)
         if requirement:
-            docs = await self._repo.list_candidate_documents(candidate_id)
             for d in docs:
                 if d.requirement_id == requirement.id:
+                    doc = d
+                    break
+        else:
+            for d in docs:
+                if d.requirement_id is None and d.document_type == "generic_upload":
                     doc = d
                     break
 
@@ -69,7 +81,7 @@ class DocumentService:
             doc = await self._repo.create_document(
                 candidate_id=candidate_id,
                 requirement_id=requirement.id if requirement else None,
-                document_type=requirement_code or original_filename,
+                document_type=requirement_code or "generic_upload",
             )
 
         # Determine stored filename
@@ -174,7 +186,10 @@ class DocumentService:
         doc = await self._repo.get_document(document_id)
         if doc is None:
             raise ResourceNotFoundError("Document not found.")
-        validate_review_decision(data.status, data.resubmission_reason)
+        try:
+            validate_review_decision(data.status, data.resubmission_reason)
+        except DocumentPolicyViolation as exc:
+            raise PolicyViolationError(str(exc)) from exc
 
         review = await self._repo.add_review(
             document_id=document_id,

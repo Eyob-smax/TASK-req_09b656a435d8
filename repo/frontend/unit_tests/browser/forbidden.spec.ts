@@ -7,12 +7,12 @@ import { test, expect } from '@playwright/test'
 test.describe('Forbidden and auth-guard shell', () => {
   test('unauthenticated access to /admin redirects to /login?redirect=/admin', async ({ page }) => {
     await page.goto('/admin')
-    await expect(page).toHaveURL(/\/login\?redirect=%2Fadmin/)
+    await expect(page).toHaveURL(/\/login\?redirect=\/admin/)
   })
 
   test('unauthenticated access to /candidate redirects to /login', async ({ page }) => {
     await page.goto('/candidate')
-    await expect(page).toHaveURL(/\/login\?redirect=%2Fcandidate/)
+    await expect(page).toHaveURL(/\/login\?redirect=\/candidate/)
   })
 
   test('/forbidden renders the forbidden shell', async ({ page }) => {

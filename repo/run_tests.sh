@@ -57,7 +57,7 @@ run_frontend_browser() {
   log "Running frontend browser (Playwright) stubbed tests..."
   docker compose -f "$COMPOSE_FILE" -p "$PROJECT_NAME" run --rm \
     frontend-builder \
-    npx playwright test unit_tests/browser/
+    sh -c "npx playwright install --with-deps chromium && npx playwright test unit_tests/browser/"
 }
 
 run_frontend_browser_live() {
@@ -79,7 +79,7 @@ run_frontend_browser_live() {
     -e PW_LIVE_ADMIN_USERNAME="${PW_LIVE_ADMIN_USERNAME:-}" \
     -e PW_LIVE_ADMIN_PASSWORD="${PW_LIVE_ADMIN_PASSWORD:-}" \
     frontend-builder \
-    npx playwright test --project=live
+    sh -c "npx playwright install --with-deps chromium && npx playwright test --project=live"
 }
 
 require_docker

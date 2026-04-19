@@ -36,11 +36,18 @@ test.describe('Candidate document upload workflow', () => {
       buffer: Buffer.from('fake binary'),
     })
     // The UploadPanel emits a validation error — client-side rejection
-    await expect(page.getByText(/only PDF|PNG|JPG/i)).toBeVisible()
+    await expect(page.getByTestId('upload-error')).toBeVisible()
   })
 
   test('success state shows SHA-256 hash after successful upload mock', async ({ page }) => {
     // Intercept the upload API call to return a mock hash
+    await page.route('**/api/v1/candidates/*/documents', async route => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({ success: true, data: [] }),
+      })
+    })
     await page.route('**/api/v1/candidates/*/documents/upload', async route => {
       await route.fulfill({
         status: 200,
@@ -67,6 +74,7 @@ test.describe('Candidate document upload workflow', () => {
       mimeType: 'application/pdf',
       buffer: Buffer.from('%PDF-1.4 fake pdf content'),
     })
+    await page.getByTestId('upload-submit').click()
     // Wait for success state
     await expect(page.getByTestId('upload-success')).toBeVisible({ timeout: 5000 })
   })

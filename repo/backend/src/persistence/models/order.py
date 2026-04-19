@@ -30,10 +30,10 @@ class ServiceItem(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     bargaining_enabled: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
 
-    inventory: Mapped["ServiceItemInventory | None"] = relationship(
+    inventory: Mapped["ServiceItemInventory | None"] = relationship(lazy="selectin", 
         back_populates="item", uselist=False
     )
-    orders: Mapped[list["Order"]] = relationship(back_populates="item")
+    orders: Mapped[list["Order"]] = relationship(lazy="selectin", back_populates="item")
 
 
 class ServiceItemInventory(UUIDPrimaryKeyMixin, TimestampMixin, Base):
@@ -51,7 +51,7 @@ class ServiceItemInventory(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     total_slots: Mapped[int] = mapped_column(Integer, nullable=False)
     reserved_count: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
 
-    item: Mapped["ServiceItem"] = relationship(back_populates="inventory")
+    item: Mapped["ServiceItem"] = relationship(lazy="selectin", back_populates="inventory")
 
 
 class Order(UUIDPrimaryKeyMixin, TimestampMixin, Base):
@@ -79,20 +79,20 @@ class Order(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     cancellation_reason: Mapped[str | None] = mapped_column(String(500))
     idempotency_key: Mapped[str | None] = mapped_column(String(64))
 
-    item: Mapped["ServiceItem"] = relationship(back_populates="orders")
-    events: Mapped[list["OrderEvent"]] = relationship(
+    item: Mapped["ServiceItem"] = relationship(lazy="selectin", back_populates="orders")
+    events: Mapped[list["OrderEvent"]] = relationship(lazy="selectin", 
         back_populates="order", order_by="OrderEvent.sequence_number"
     )
-    bargaining_thread: Mapped["BargainingThread | None"] = relationship(
+    bargaining_thread: Mapped["BargainingThread | None"] = relationship(lazy="selectin", 
         back_populates="order", uselist=False
     )
-    payment_record: Mapped["PaymentRecord | None"] = relationship(
+    payment_record: Mapped["PaymentRecord | None"] = relationship(lazy="selectin", 
         back_populates="order", uselist=False
     )
-    voucher: Mapped["Voucher | None"] = relationship(back_populates="order", uselist=False)
-    milestones: Mapped[list["FulfillmentMilestone"]] = relationship(back_populates="order")
-    refund_records: Mapped[list["RefundRecord"]] = relationship(back_populates="order")
-    after_sales_requests: Mapped[list["AfterSalesRequest"]] = relationship(back_populates="order")
+    voucher: Mapped["Voucher | None"] = relationship(lazy="selectin", back_populates="order", uselist=False)
+    milestones: Mapped[list["FulfillmentMilestone"]] = relationship(lazy="selectin", back_populates="order")
+    refund_records: Mapped[list["RefundRecord"]] = relationship(lazy="selectin", back_populates="order")
+    after_sales_requests: Mapped[list["AfterSalesRequest"]] = relationship(lazy="selectin", back_populates="order")
 
 
 class OrderEvent(UUIDPrimaryKeyMixin, Base):
@@ -114,7 +114,7 @@ class OrderEvent(UUIDPrimaryKeyMixin, Base):
     notes: Mapped[str | None] = mapped_column(Text)
     occurred_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
 
-    order: Mapped["Order"] = relationship(back_populates="events")
+    order: Mapped["Order"] = relationship(lazy="selectin", back_populates="events")
 
 
 class BargainingThread(UUIDPrimaryKeyMixin, TimestampMixin, Base):
@@ -138,8 +138,8 @@ class BargainingThread(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     resolved_offer_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
     resolved_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
-    order: Mapped["Order"] = relationship(back_populates="bargaining_thread")
-    offers: Mapped[list["BargainingOffer"]] = relationship(
+    order: Mapped["Order"] = relationship(lazy="selectin", back_populates="bargaining_thread")
+    offers: Mapped[list["BargainingOffer"]] = relationship(lazy="selectin", 
         back_populates="thread", order_by="BargainingOffer.offer_number"
     )
 
@@ -163,7 +163,7 @@ class BargainingOffer(UUIDPrimaryKeyMixin, Base):
     outcome: Mapped[str | None] = mapped_column(String(30))
     outcome_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
-    thread: Mapped["BargainingThread"] = relationship(back_populates="offers")
+    thread: Mapped["BargainingThread"] = relationship(lazy="selectin", back_populates="offers")
 
 
 class PaymentRecord(UUIDPrimaryKeyMixin, TimestampMixin, Base):
@@ -182,7 +182,7 @@ class PaymentRecord(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     confirmed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     notes: Mapped[str | None] = mapped_column(Text)
 
-    order: Mapped["Order"] = relationship(back_populates="payment_record")
+    order: Mapped["Order"] = relationship(lazy="selectin", back_populates="payment_record")
 
 
 class Voucher(UUIDPrimaryKeyMixin, TimestampMixin, Base):
@@ -200,7 +200,7 @@ class Voucher(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     issued_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     notes: Mapped[str | None] = mapped_column(Text)
 
-    order: Mapped["Order"] = relationship(back_populates="voucher")
+    order: Mapped["Order"] = relationship(lazy="selectin", back_populates="voucher")
 
 
 class FulfillmentMilestone(UUIDPrimaryKeyMixin, TimestampMixin, Base):
@@ -217,7 +217,7 @@ class FulfillmentMilestone(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     recorded_by: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False)
     occurred_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
 
-    order: Mapped["Order"] = relationship(back_populates="milestones")
+    order: Mapped["Order"] = relationship(lazy="selectin", back_populates="milestones")
 
 
 class AfterSalesRequest(UUIDPrimaryKeyMixin, TimestampMixin, Base):
@@ -238,7 +238,7 @@ class AfterSalesRequest(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     resolved_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     resolution_notes: Mapped[str | None] = mapped_column(Text)
 
-    order: Mapped["Order"] = relationship(back_populates="after_sales_requests")
+    order: Mapped["Order"] = relationship(lazy="selectin", back_populates="after_sales_requests")
 
 
 class RefundRecord(UUIDPrimaryKeyMixin, TimestampMixin, Base):
@@ -258,8 +258,8 @@ class RefundRecord(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     reason: Mapped[str] = mapped_column(Text, nullable=False)
     rollback_applied: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
 
-    order: Mapped["Order"] = relationship(back_populates="refund_records")
-    rollback_event: Mapped["RollbackEvent | None"] = relationship(
+    order: Mapped["Order"] = relationship(lazy="selectin", back_populates="refund_records")
+    rollback_event: Mapped["RollbackEvent | None"] = relationship(lazy="selectin", 
         back_populates="refund", uselist=False
     )
 
@@ -279,4 +279,4 @@ class RollbackEvent(UUIDPrimaryKeyMixin, Base):
     rollback_reason: Mapped[str] = mapped_column(String(200), nullable=False)
     rolled_back_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
 
-    refund: Mapped["RefundRecord"] = relationship(back_populates="rollback_event")
+    refund: Mapped["RefundRecord"] = relationship(lazy="selectin", back_populates="rollback_event")

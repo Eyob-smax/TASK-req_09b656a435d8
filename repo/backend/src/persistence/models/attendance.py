@@ -30,7 +30,7 @@ class AttendanceAnomaly(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     flagged_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     description: Mapped[str | None] = mapped_column(Text)
 
-    exceptions: Mapped[list["AttendanceException"]] = relationship(back_populates="anomaly")
+    exceptions: Mapped[list["AttendanceException"]] = relationship(lazy="selectin", back_populates="anomaly")
 
 
 class AttendanceException(UUIDPrimaryKeyMixin, TimestampMixin, Base):
@@ -53,9 +53,9 @@ class AttendanceException(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     candidate_statement: Mapped[str | None] = mapped_column(Text)
     submitted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
-    anomaly: Mapped["AttendanceAnomaly | None"] = relationship(back_populates="exceptions")
-    proofs: Mapped[list["ExceptionProof"]] = relationship(back_populates="exception")
-    review_steps: Mapped[list["ExceptionReviewStep"]] = relationship(
+    anomaly: Mapped["AttendanceAnomaly | None"] = relationship(lazy="selectin", back_populates="exceptions")
+    proofs: Mapped[list["ExceptionProof"]] = relationship(lazy="selectin", back_populates="exception")
+    review_steps: Mapped[list["ExceptionReviewStep"]] = relationship(lazy="selectin", 
         back_populates="exception", order_by="ExceptionReviewStep.step_order"
     )
 
@@ -76,7 +76,7 @@ class ExceptionProof(UUIDPrimaryKeyMixin, Base):
     uploaded_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     description: Mapped[str | None] = mapped_column(Text)
 
-    exception: Mapped["AttendanceException"] = relationship(back_populates="proofs")
+    exception: Mapped["AttendanceException"] = relationship(lazy="selectin", back_populates="proofs")
 
 
 class ExceptionReviewStep(UUIDPrimaryKeyMixin, Base):
@@ -98,8 +98,8 @@ class ExceptionReviewStep(UUIDPrimaryKeyMixin, Base):
     decided_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     is_escalated: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
 
-    exception: Mapped["AttendanceException"] = relationship(back_populates="review_steps")
-    approval: Mapped["ExceptionApproval | None"] = relationship(
+    exception: Mapped["AttendanceException"] = relationship(lazy="selectin", back_populates="review_steps")
+    approval: Mapped["ExceptionApproval | None"] = relationship(lazy="selectin", 
         back_populates="step", uselist=False
     )
 
@@ -121,4 +121,4 @@ class ExceptionApproval(UUIDPrimaryKeyMixin, Base):
     outcome: Mapped[str] = mapped_column(String(30), nullable=False)
     signature_hash: Mapped[str | None] = mapped_column(String(128))
 
-    step: Mapped["ExceptionReviewStep"] = relationship(back_populates="approval")
+    step: Mapped["ExceptionReviewStep"] = relationship(lazy="selectin", back_populates="approval")

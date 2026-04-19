@@ -24,11 +24,12 @@ class _FakeRepo:
     async def insert(self, **kwargs):
         from types import SimpleNamespace
 
+        payload = dict(kwargs)
+        payload["method"] = kwargs["method"].upper()
         row = SimpleNamespace(
             id=uuid.uuid4(),
             created_at=datetime.now(tz=timezone.utc),
-            **kwargs,
-            method=kwargs["method"].upper(),
+            **payload,
         )
         self._rows[(kwargs["key"], kwargs["method"].upper(), kwargs["path"])] = row
         return row

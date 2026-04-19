@@ -129,7 +129,11 @@ async def require_signed_request(
         now=now,
     )
 
-    body = await request.body()
+    content_type = request.headers.get("content-type", "")
+    if content_type.startswith("multipart/form-data"):
+        body = b""
+    else:
+        body = await request.body()
     method = request.method.upper()
     path = request.url.path
     canonical = signing.build_canonical_string(

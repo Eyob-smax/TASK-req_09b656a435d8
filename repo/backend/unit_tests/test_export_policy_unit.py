@@ -6,6 +6,7 @@ from __future__ import annotations
 import uuid
 from unittest.mock import AsyncMock, MagicMock, patch
 from datetime import datetime, timezone
+from types import SimpleNamespace
 
 import pytest
 
@@ -17,6 +18,19 @@ def _make_actor(role: UserRole) -> Actor:
     return Actor(user_id=str(uuid.uuid4()), role=role, username="user1")
 
 
+def _make_job(export_type: str = "audit_csv"):
+    return SimpleNamespace(
+        id=uuid.uuid4(),
+        requested_by=uuid.uuid4(),
+        export_type=export_type,
+        status="pending",
+        sha256_hash=None,
+        watermark_applied=False,
+        completed_at=None,
+        created_at=datetime.now(tz=timezone.utc),
+    )
+
+
 # ── Admin-only enforcement ────────────────────────────────────────────────────
 
 @pytest.mark.asyncio
@@ -25,7 +39,8 @@ async def test_create_export_admin_only():
     from src.services.export_service import ExportService
     from src.security.errors import ForbiddenError
 
-    session = AsyncMock()
+    session = MagicMock()
+    session.flush = AsyncMock()
     svc = ExportService(session)
     reviewer = _make_actor(UserRole.reviewer)
 
@@ -72,14 +87,16 @@ async def test_export_stores_sha256():
     svc = ExportService(session)
     admin = _make_actor(UserRole.admin)
 
-    job = MagicMock()
-    job.id = uuid.uuid4()
-    job.export_type = "audit_csv"
-    job.created_at = datetime.now(tz=timezone.utc)
+    job = _make_job("audit_csv")
 
     svc.repo = AsyncMock()
     svc.repo.create_export_job = AsyncMock(return_value=job)
-    svc.repo.update_export_job = AsyncMock()
+    async def _update_job_side_effect(job_obj, **kwargs):
+        for k, v in kwargs.items():
+            setattr(job_obj, k, v)
+        return job_obj
+
+    svc.repo.update_export_job = AsyncMock(side_effect=_update_job_side_effect)
 
     csv_bytes = b"id,event_type\n1,login_success\n"
 
@@ -99,19 +116,22 @@ async def test_export_records_watermark_username():
     """Completed export records watermark_username in repo update call."""
     from src.services.export_service import ExportService
 
-    session = AsyncMock()
+    session = MagicMock()
+    session.flush = AsyncMock()
     svc = ExportService(session)
     admin = _make_actor(UserRole.admin)
     admin = Actor(user_id=str(uuid.uuid4()), role=UserRole.admin, username="carol_admin")
 
-    job = MagicMock()
-    job.id = uuid.uuid4()
-    job.export_type = "audit_csv"
-    job.created_at = datetime.now(tz=timezone.utc)
+    job = _make_job("audit_csv")
 
     svc.repo = AsyncMock()
     svc.repo.create_export_job = AsyncMock(return_value=job)
-    svc.repo.update_export_job = AsyncMock()
+    async def _update_job_side_effect(job_obj, **kwargs):
+        for k, v in kwargs.items():
+            setattr(job_obj, k, v)
+        return job_obj
+
+    svc.repo.update_export_job = AsyncMock(side_effect=_update_job_side_effect)
 
     csv_bytes = b"id\n1\n"
     with patch.object(svc, '_generate_content', AsyncMock(return_value=csv_bytes)):
