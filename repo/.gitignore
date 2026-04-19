@@ -1,0 +1,43 @@
+# Environment and secrets
+.env
+*.env
+.env.*
+!.env.example
+secrets/
+certs/*.pem
+certs/*.key
+certs/*.crt
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+.coverage
+htmlcov/
+dist/
+*.egg-info/
+.venv/
+venv/
+
+# Node / Frontend
+node_modules/
+frontend/dist/
+frontend/.vite/
+*.tsbuildinfo
+
+# Playwright
+test-results/
+playwright-report/
+
+# Docker volumes (local dev)
+postgres_data/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db

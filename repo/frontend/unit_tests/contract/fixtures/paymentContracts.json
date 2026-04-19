@@ -1,0 +1,13 @@
+{
+  "proof": {
+    "order_id": "order-1",
+    "payment_method": "bank_transfer",
+    "reference_number": "TXN-1",
+    "amount": "1200.00",
+    "confirmed": false
+  },
+  "confirm": {
+    "order_id": "order-1",
+    "status": "pending_fulfillment"
+  }
+}

@@ -1,0 +1,117 @@
+#!/usr/bin/env bash
+# run_tests.sh — Docker-first test orchestration for MeritTrack
+# Usage: bash run_tests.sh [suite]
+# Suites: all (default), backend-unit, backend-api, frontend-unit, frontend-browser, frontend-browser-live
+#
+# Backend tests use SQLite in-memory (conftest.py overrides the DB connection);
+# the DATABASE_URL env var satisfies Settings validation but is never opened.
+# --no-deps prevents docker compose from starting the db service unnecessarily.
+#
+# frontend-builder is a run-once build step invoked via `docker compose run --rm
+# frontend-builder ...`. It is required by `backend.depends_on` so it runs under
+# the default profile on `docker compose up` — do NOT gate it behind a profile.
+
+set -euo pipefail
+
+SUITE="${1:-all}"
+COMPOSE_FILE="$(dirname "$0")/docker-compose.yml"
+PROJECT_NAME="merittrack_test"
+
+log() { echo "[run_tests] $*"; }
+
+require_docker() {
+  if ! command -v docker &>/dev/null; then
+    echo "ERROR: docker is not installed or not in PATH" >&2
+    exit 1
+  fi
+  if ! docker info &>/dev/null; then
+    echo "ERROR: Docker daemon is not running" >&2
+    exit 1
+  fi
+}
+
+run_backend_unit() {
+  log "Running backend unit tests..."
+  docker compose -f "$COMPOSE_FILE" -p "$PROJECT_NAME" run --rm --no-deps \
+    -e DATABASE_URL="postgresql+psycopg2://merittrack:testpass@localhost/merittrack_test" \
+    backend \
+    python -m pytest unit_tests/ -v --tb=short
+}
+
+run_backend_api() {
+  log "Running backend API/integration tests..."
+  docker compose -f "$COMPOSE_FILE" -p "$PROJECT_NAME" run --rm --no-deps \
+    -e DATABASE_URL="postgresql+psycopg2://merittrack:testpass@localhost/merittrack_test" \
+    backend \
+    python -m pytest api_tests/ -v --tb=short
+}
+
+run_frontend_unit() {
+  log "Running frontend unit tests..."
+  docker compose -f "$COMPOSE_FILE" -p "$PROJECT_NAME" run --rm \
+    frontend-builder \
+    npx vitest run --reporter=verbose
+}
+
+run_frontend_browser() {
+  log "Running frontend browser (Playwright) stubbed tests..."
+  docker compose -f "$COMPOSE_FILE" -p "$PROJECT_NAME" run --rm \
+    frontend-builder \
+    npx playwright test unit_tests/browser/
+}
+
+run_frontend_browser_live() {
+  # No-mock end-to-end Playwright suite (repo/frontend/e2e/). Each spec is tagged
+  # @live and skips silently unless PW_LIVE_* env vars are exported, mirroring
+  # the existing live_auth_smoke.spec.ts pattern. A live backend must be reachable
+  # via the Vite proxy (run `docker compose up` in another shell).
+  #
+  # Required env vars (forwarded into the container):
+  #   PW_LIVE_USERNAME / PW_LIVE_PASSWORD               — candidate credentials
+  #   PW_LIVE_REVIEWER_USERNAME / PW_LIVE_REVIEWER_PASSWORD
+  #   PW_LIVE_ADMIN_USERNAME / PW_LIVE_ADMIN_PASSWORD
+  log "Running no-mock Playwright E2E suite (requires live backend)..."
+  docker compose -f "$COMPOSE_FILE" -p "$PROJECT_NAME" run --rm \
+    -e PW_LIVE_USERNAME="${PW_LIVE_USERNAME:-}" \
+    -e PW_LIVE_PASSWORD="${PW_LIVE_PASSWORD:-}" \
+    -e PW_LIVE_REVIEWER_USERNAME="${PW_LIVE_REVIEWER_USERNAME:-}" \
+    -e PW_LIVE_REVIEWER_PASSWORD="${PW_LIVE_REVIEWER_PASSWORD:-}" \
+    -e PW_LIVE_ADMIN_USERNAME="${PW_LIVE_ADMIN_USERNAME:-}" \
+    -e PW_LIVE_ADMIN_PASSWORD="${PW_LIVE_ADMIN_PASSWORD:-}" \
+    frontend-builder \
+    npx playwright test --project=live
+}
+
+require_docker
+
+case "$SUITE" in
+  backend-unit)
+    run_backend_unit
+    ;;
+  backend-api)
+    run_backend_api
+    ;;
+  frontend-unit)
+    run_frontend_unit
+    ;;
+  frontend-browser)
+    run_frontend_browser
+    ;;
+  frontend-browser-live)
+    run_frontend_browser_live
+    ;;
+  all)
+    # `all` stays hermetic — frontend-browser-live is opt-in because it needs a
+    # running backend and PW_LIVE_* credentials. Invoke it explicitly.
+    run_backend_unit
+    run_backend_api
+    run_frontend_unit
+    run_frontend_browser
+    log "All suites passed."
+    ;;
+  *)
+    echo "Unknown suite: $SUITE" >&2
+    echo "Usage: $0 [all|backend-unit|backend-api|frontend-unit|frontend-browser|frontend-browser-live]" >&2
+    exit 1
+    ;;
+esac

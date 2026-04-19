@@ -1,0 +1,14 @@
+{
+  "id": "cand-1",
+  "user_id": "user-1",
+  "preferred_name": "Alex Candidate",
+  "application_year": 2026,
+  "application_status": "active",
+  "program_code": "BSCS",
+  "created_at": "2026-01-01T00:00:00Z",
+  "updated_at": "2026-01-02T00:00:00Z",
+  "ssn_display": "***-**-1234",
+  "dob_display": "2001-**-**",
+  "phone_display": "***-***-1234",
+  "email_display": "a***@***.com"
+}

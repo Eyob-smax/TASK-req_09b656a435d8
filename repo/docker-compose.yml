@@ -1,0 +1,100 @@
+version: "3.9"
+
+# ── TLS / Secret prerequisites (NOT auto-provisioned) ────────────────────────
+# Before running `docker compose up`, create the following files on the host:
+#
+#   ./certs/cert.pem          — TLS certificate (self-signed or mkcert)
+#   ./certs/key.pem           — TLS private key
+#   ./secrets/kek/v1.key      — 32 raw bytes (directory = KEK_PATH, file = <version>.key)
+#                               e.g. `mkdir -p secrets/kek && openssl rand -out secrets/kek/v1.key 32`
+#   ./secrets/jwt_private.pem / jwt_public.pem  — RS256 key pair
+#
+# Generation examples:
+#   mkcert -install && mkcert -cert-file certs/cert.pem -key-file certs/key.pem localhost 127.0.0.1
+#   openssl genrsa -out secrets/jwt_private.pem 2048
+#   openssl rsa -in secrets/jwt_private.pem -pubout -out secrets/jwt_public.pem
+#
+# These paths are overridable via TLS_CERT_DIR and KEK_DIR environment variables.
+# ─────────────────────────────────────────────────────────────────────────────
+
+services:
+  db:
+    image: postgres:14-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: merittrack
+      POSTGRES_USER: ${POSTGRES_USER:-merittrack}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - internal
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-merittrack} -d merittrack"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+      frontend-builder:
+        condition: service_completed_successfully
+    environment:
+      DATABASE_URL: postgresql+psycopg2://${POSTGRES_USER:-merittrack}:${POSTGRES_PASSWORD}@db:5432/merittrack
+      SECRET_KEY: ${SECRET_KEY:?SECRET_KEY is required}
+      KEK_PATH: ${KEK_PATH:-/secrets/kek}
+      KEK_CURRENT_VERSION: ${KEK_CURRENT_VERSION:-v1}
+      TLS_CERT_PATH: ${TLS_CERT_PATH:-/certs/cert.pem}
+      TLS_KEY_PATH: ${TLS_KEY_PATH:-/certs/key.pem}
+      STORAGE_ROOT: ${STORAGE_ROOT:-/data/uploads}
+      EXPORTS_ROOT: ${EXPORTS_ROOT:-/data/exports}
+      ACCESS_LOG_ROOT: ${ACCESS_LOG_ROOT:-/data/access-logs}
+      FORECASTS_ROOT: ${FORECASTS_ROOT:-/data/forecasts}
+      ENVIRONMENT: ${ENVIRONMENT:-production}
+      FRONTEND_DIST_PATH: /app/frontend_dist
+    volumes:
+      - uploads_data:/data/uploads
+      - exports_data:/data/exports
+      - logs_data:/data/access-logs
+      - forecasts_data:/data/forecasts
+      - ${TLS_CERT_DIR:-./certs}:/certs:ro
+      - ${KEK_DIR:-./secrets}:/secrets:ro
+      - frontend_dist:/app/frontend_dist:ro
+    ports:
+      - "${HTTPS_PORT:-8443}:8443"
+    networks:
+      - internal
+    healthcheck:
+      test: ["CMD", "curl", "-kf", "https://localhost:8443/api/v1/internal/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  frontend-builder:
+    # Runs on every `docker compose up` to copy the built Vue dist into the shared volume.
+    # The backend mounts frontend_dist at /app/frontend_dist and serves static assets from there.
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      target: builder
+    volumes:
+      - frontend_dist:/tmp/frontend_dist
+    command: sh -c "cp -r /app/dist/. /tmp/frontend_dist/"
+
+volumes:
+  postgres_data:
+  uploads_data:
+  exports_data:
+  logs_data:
+  forecasts_data:
+  frontend_dist:
+
+networks:
+  internal:
+    driver: bridge

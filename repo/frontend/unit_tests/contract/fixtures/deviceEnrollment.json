@@ -1,0 +1,12 @@
+{
+  "challenge": {
+    "challenge_id": "ch-1",
+    "nonce": "nonce-1",
+    "expires_at": "2026-01-01T00:05:00Z"
+  },
+  "activation": {
+    "device_id": "dev-1",
+    "device_fingerprint": "fp-abc123",
+    "registered_at": "2026-01-01T00:00:00Z"
+  }
+}
