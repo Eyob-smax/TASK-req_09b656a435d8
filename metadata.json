@@ -1,5 +1,5 @@
 {
-  "project_type": "full-stack",
+  "project_type": "fullstack",
   "frontend_language": "TypeScript",
   "backend_language": "Python",
   "frontend_framework": "Vue.js",
