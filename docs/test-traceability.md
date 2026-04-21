@@ -1,6 +1,6 @@
 # MeritTrack — Test Traceability
 
-> **Last verified against code: 2026-04-19.** All 85 endpoint paths and test-file references in the Consolidated Endpoint Coverage Map below were confirmed against `repo/backend/src/api/routes/` (auth.py, candidates.py, documents.py, orders.py, payment.py, bargaining.py, refunds.py, attendance.py, queue.py, admin.py, idp.py) and `repo/backend/src/main.py`. Consistent with `docs/api-spec.md` Section 7 and `docs/requirement-traceability.md`.
+> **Last verified against code: 2026-04-21.** All 86 endpoint paths and test-file references in the Consolidated Endpoint Coverage Map below were confirmed against `repo/backend/src/api/routes/` (auth.py, candidates.py, documents.py, orders.py, payment.py, bargaining.py, refunds.py, attendance.py, queue.py, admin.py, idp.py) and `repo/backend/src/main.py`. Consistent with `docs/api-spec.md` Section 7 and `docs/requirement-traceability.md`.
 
 This document maps requirements and endpoints to test files and test types. It contains only current-state, authoritative content — the Consolidated Endpoint Coverage Map, the Requirement-to-Test Map, and the Audit-5 Addendum. It is updated whenever tests are added or changed.
 
@@ -22,7 +22,7 @@ This document maps requirements and endpoints to test files and test types. It c
 >
 > This document contains **only current-state, authoritative** sections. Historical per-prompt (P1–P11) archival tables were previously interleaved here; they were retired during audit-5 remediation (2026-04-19) to remove ambiguity. The prior per-prompt evolution record is preserved in git history.
 >
-> - **[Consolidated Endpoint Coverage Map](#consolidated-endpoint-coverage-map)** — single source of truth for endpoint → test mapping across all 85 routes. Every row cites at least one real `api_tests/` file; no placeholder, pending, TBD, or coverage-gap rows exist.
+> - **[Consolidated Endpoint Coverage Map](#consolidated-endpoint-coverage-map)** — single source of truth for endpoint → test mapping across all 86 routes. Every row cites at least one real `api_tests/` file; no placeholder, pending, TBD, or coverage-gap rows exist.
 > - **[Requirement-to-Test Map](#requirement-to-test-map)** — traceability from each requirement to its backing test files. Every requirement resolved; no pending entries.
 > - **[Audit-5 Addendum](#audit-5-addendum--2026-04-19-current-state-reconciliation)** — documents the audit-5 reconciliation that removed stale per-prompt content and records newly-added tests.
 > - **[Audit-1 Remediation Addendum](#audit-1-remediation-addendum--2026-04-19-state-transition-signing--endpoint-parity-close-out)** — documents the audit-1 remediation (state-transition signing, endpoint-parity close-out, no-mock Playwright journey map).
@@ -31,7 +31,7 @@ This document maps requirements and endpoints to test files and test types. It c
 
 ## Consolidated Endpoint Coverage Map
 
-> **Authoritative — current state.** Paths verified 2026-04-19 against `repo/backend/src/api/routes/` and `repo/backend/src/main.py`. 85 total endpoints. Every row below maps to at least one real `api_tests/` file with no-mock HTTP tests; many rows cite specific test method names in addition to the file. **No placeholder, pending, TBD, or coverage-gap entries exist in this table.** If an entry appears sparse, it still represents fully-implemented, passing test coverage — see the referenced file for the concrete test methods.
+> **Authoritative — current state.** Paths verified 2026-04-21 against `repo/backend/src/api/routes/` and `repo/backend/src/main.py`. 86 total endpoints. Every row below maps to at least one real `api_tests/` file with no-mock HTTP tests; many rows cite specific test method names in addition to the file. **No placeholder, pending, TBD, or coverage-gap entries exist in this table.** If an entry appears sparse, it still represents fully-implemented, passing test coverage — see the referenced file for the concrete test methods.
 
 ### Auth (router prefix: `/api/v1/auth`)
 
@@ -61,6 +61,7 @@ This document maps requirements and endpoints to test files and test types. It c
 |---|---|
 | GET /api/v1/candidates | `api_tests/test_candidates.py` — `test_list_candidates_reviewer_ok`, `test_list_candidates_candidate_forbidden` |
 | POST /api/v1/candidates | `api_tests/test_candidates.py` |
+| POST /api/v1/candidates/self | `api_tests/test_candidates.py` — `test_candidate_self_profile_init`, `test_candidate_self_profile_idempotent`, `test_candidate_self_profile_forbidden_for_reviewer` |
 | GET /api/v1/candidates/{candidate_id} | `api_tests/test_candidates.py` |
 | PATCH /api/v1/candidates/{candidate_id} | `api_tests/test_candidates.py` |
 | GET /api/v1/candidates/{candidate_id}/exam-scores | `api_tests/test_candidates.py` — `test_get_exam_scores` |
@@ -86,7 +87,7 @@ This document maps requirements and endpoints to test files and test types. It c
 |---|---|
 | GET /api/v1/services | `api_tests/test_orders.py` — `test_list_service_items` |
 | POST /api/v1/orders | `api_tests/test_orders.py`, `api_tests/test_payment.py`, `api_tests/test_signed_route_success.py` |
-| GET /api/v1/orders | `api_tests/test_orders.py` |
+| GET /api/v1/orders | `api_tests/test_orders.py` — `test_list_orders_candidate_sees_only_owned_orders` |
 | GET /api/v1/orders/{order_id} | `api_tests/test_orders.py` |
 | POST /api/v1/orders/{order_id}/cancel | `api_tests/test_orders.py`, `api_tests/test_signed_routes_mutations.py` (rejection) |
 | POST /api/v1/orders/{order_id}/confirm-receipt | `api_tests/test_refund_after_sales.py` — `test_confirm_receipt_completes_order`, `api_tests/test_signed_routes_mutations.py` (rejection) |
@@ -268,7 +269,7 @@ All deltas above have been reflected in the [Consolidated Endpoint Coverage Map]
 
 ## Audit-1 Remediation Addendum — 2026-04-19 State-Transition Signing + Endpoint-Parity Close-Out
 
-*(Current state. Records the audit-1 remediation that closed the residual signing gap on order-lifecycle state transitions and added no-mock BE-API coverage for the three endpoints previously missing a direct test.)*
+*(Current state. Records the audit-1 remediation that closed the residual signing gap on order-lifecycle state transitions and, with a follow-up parity cleanup, added no-mock BE-API coverage for the four endpoints that had lacked a direct test.)*
 
 ### Newly-signed routes (audit-1)
 
@@ -298,18 +299,19 @@ All six live in `api_tests/test_signed_routes_mutations.py`.
 
 ### Endpoint-parity close-out (every endpoint has a BE-API test)
 
-Audit-1 also identified three endpoints that lacked a direct no-mock test. New tests:
+Audit-1 parity work and the follow-up cleanup identified four endpoints that now have a direct no-mock test. New tests:
 
 | Endpoint | Test | File |
 |---|---|---|
 | GET /api/v1/services | `test_list_service_items` | `api_tests/test_orders.py` |
+| GET /api/v1/orders | `test_list_orders_candidate_sees_only_owned_orders` | `api_tests/test_orders.py` |
 | GET /api/v1/admin/exports/{export_id}/download | `test_download_export_content_and_watermark` | `api_tests/test_admin.py` |
 | POST /api/v1/auth/device/{device_id}/rotate | `test_device_rotate_roundtrip`, `test_device_rotate_unsigned_rejected` | `api_tests/test_device_flow.py` |
 
 ### Route-to-test parity checksum
 
-- Route decorators: `grep -rn '^@router\.' repo/backend/src/api/routes/` returns 83 hits + 2 in `src/main.py` (`/api/v1/internal/health`, `/api/v1/internal/metrics`) = **85 endpoints**.
-- Consolidated Endpoint Coverage Map rows (GET/POST/PUT/PATCH/DELETE /api/v1/…): **85 rows**.
+- Route decorators: `grep -rn '^@router\.' repo/backend/src/api/routes/` returns 84 hits + 2 `@app.get` entries in `src/main.py` (`/api/v1/internal/health`, `/api/v1/internal/metrics`) = **86 endpoints**.
+- Consolidated Endpoint Coverage Map rows (GET/POST/PUT/PATCH/DELETE /api/v1/…): **86 rows**.
 - Delta: **0**. Every endpoint is covered by at least one no-mock BE-API test.
 
 ### End-to-End Journey Map (no-mock Playwright)
@@ -332,6 +334,6 @@ Each journey is a live no-mock supplement to the per-endpoint BE-API rows above;
 ### Reconciliation status (audit-1)
 
 - Signed-mutation parity: `docs/api-spec.md` §3.2 inventory + code `@router.post(... Depends(require_signed_request) ...)` + `test_signed_routes_mutations.py` rejection tests all agree — 16 signed mutation routes from audit-5 B2 plus 6 state-transition routes from audit-1 = 22 signed mutation POSTs, all three layers in sync.
-- Endpoint/test parity: 85 routes ↔ 85 coverage-map rows; every row cites at least one no-mock BE-API file.
+- Endpoint/test parity: 86 routes ↔ 86 coverage-map rows; every row cites at least one no-mock BE-API file.
 - Doc drift: `docs/design.md` §13 and `docs/requirement-traceability.md` reference only paths that exist on disk as of 2026-04-19.
 - Queue namespace: the canonical prefix is singular `/api/v1/queue` (see `repo/backend/src/api/routes/queue.py:20`). A static search for any pluralised variant across `docs/` returns zero hits — the prior audit's singular-vs-plural drift finding is closed. The Staff Queues section above carries an explicit anti-regression note so future auditors can confirm intent, not just absence.

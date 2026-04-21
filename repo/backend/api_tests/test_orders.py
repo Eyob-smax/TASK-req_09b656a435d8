@@ -185,6 +185,64 @@ async def test_create_order_idempotency_row_persisted(
 
 
 @pytest.mark.asyncio
+async def test_list_orders_candidate_sees_only_owned_orders(
+    client, seeded_user, seeded_reviewer, test_session_factory, _install_jwt_keys
+):
+    from src.persistence.models.auth import User
+    from src.security.passwords import hash_password
+
+    rev_token = await login(client, seeded_reviewer)
+    item_id = await _create_service_item(test_session_factory)
+
+    async with test_session_factory() as session:
+        user_b = User(
+            username=f"candidate-b-{uuid.uuid4().hex[:8]}",
+            password_hash=hash_password("correct horse battery staple"),
+            role="candidate",
+            full_name="Candidate B",
+            is_active=True,
+            is_locked=False,
+        )
+        session.add(user_b)
+        await session.commit()
+        await session.refresh(user_b)
+        user_b_data = {
+            "id": user_b.id,
+            "username": user_b.username,
+            "password": "correct horse battery staple",
+        }
+
+    await _create_candidate_profile(client, rev_token, seeded_user["id"])
+    await _create_candidate_profile(client, rev_token, user_b_data["id"])
+
+    cand_a_token = await login(client, seeded_user)
+    cand_b_token = await login(client, user_b_data)
+
+    order_a_resp = await _create_order(client, cand_a_token, item_id)
+    assert order_a_resp.status_code == 201, order_a_resp.text
+    order_a_id = order_a_resp.json()["data"]["id"]
+
+    order_b_resp = await _create_order(client, cand_b_token, item_id)
+    assert order_b_resp.status_code == 201, order_b_resp.text
+    order_b_id = order_b_resp.json()["data"]["id"]
+
+    resp = await client.get(
+        "/api/v1/orders",
+        headers={"Authorization": f"Bearer {cand_a_token}"},
+    )
+    assert resp.status_code == 200, resp.text
+    body = resp.json()
+    assert isinstance(body["data"], list)
+    assert "pagination" in body
+    assert body["pagination"]["page"] == 1
+    assert body["pagination"]["page_size"] == 20
+    assert body["pagination"]["total"] == 1
+    returned_ids = [order["id"] for order in body["data"]]
+    assert order_a_id in returned_ids
+    assert order_b_id not in returned_ids
+
+
+@pytest.mark.asyncio
 async def test_order_row_scope(client, seeded_user, seeded_reviewer, test_session_factory, _install_jwt_keys):
     from src.persistence.models.auth import User
     from src.security.passwords import hash_password

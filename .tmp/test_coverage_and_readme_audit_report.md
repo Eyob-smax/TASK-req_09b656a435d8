@@ -26,75 +26,76 @@ Resolved from FastAPI route wiring in repo/backend/src/api/routes/__init__.py an
 | 14 | GET /api/v1/idp/jwks | repo/backend/src/api/routes/idp.py (jwks) |
 | 15 | GET /api/v1/candidates | repo/backend/src/api/routes/candidates.py (list_candidate_profiles) |
 | 16 | POST /api/v1/candidates | repo/backend/src/api/routes/candidates.py (create_candidate_profile) |
-| 17 | GET /api/v1/candidates/{candidate_id} | repo/backend/src/api/routes/candidates.py (get_candidate_profile) |
-| 18 | PATCH /api/v1/candidates/{candidate_id} | repo/backend/src/api/routes/candidates.py (update_candidate_profile) |
-| 19 | GET /api/v1/candidates/{candidate_id}/exam-scores | repo/backend/src/api/routes/candidates.py (list_exam_scores) |
-| 20 | POST /api/v1/candidates/{candidate_id}/exam-scores | repo/backend/src/api/routes/candidates.py (add_exam_score) |
-| 21 | GET /api/v1/candidates/{candidate_id}/transfer-preferences | repo/backend/src/api/routes/candidates.py (list_transfer_preferences) |
-| 22 | POST /api/v1/candidates/{candidate_id}/transfer-preferences | repo/backend/src/api/routes/candidates.py (add_transfer_preference) |
-| 23 | PATCH /api/v1/candidates/{candidate_id}/transfer-preferences/{pref_id} | repo/backend/src/api/routes/candidates.py (update_transfer_preference) |
-| 24 | GET /api/v1/candidates/{candidate_id}/checklist | repo/backend/src/api/routes/candidates.py (get_checklist) |
-| 25 | POST /api/v1/candidates/{candidate_id}/documents/upload | repo/backend/src/api/routes/documents.py (upload_document) |
-| 26 | GET /api/v1/candidates/{candidate_id}/documents | repo/backend/src/api/routes/documents.py (list_documents) |
-| 27 | GET /api/v1/candidates/{candidate_id}/documents/{document_id} | repo/backend/src/api/routes/documents.py (get_document) |
-| 28 | POST /api/v1/documents/{document_id}/review | repo/backend/src/api/routes/documents.py (review_document) |
-| 29 | GET /api/v1/documents/{document_id}/download | repo/backend/src/api/routes/documents.py (download_document) |
-| 30 | GET /api/v1/services | repo/backend/src/api/routes/orders.py (list_service_items) |
-| 31 | POST /api/v1/orders | repo/backend/src/api/routes/orders.py (create_order) |
-| 32 | GET /api/v1/orders | repo/backend/src/api/routes/orders.py (list_orders) |
-| 33 | GET /api/v1/orders/{order_id} | repo/backend/src/api/routes/orders.py (get_order) |
-| 34 | POST /api/v1/orders/{order_id}/cancel | repo/backend/src/api/routes/orders.py (cancel_order) |
-| 35 | POST /api/v1/orders/{order_id}/confirm-receipt | repo/backend/src/api/routes/orders.py (confirm_receipt) |
-| 36 | POST /api/v1/orders/{order_id}/advance | repo/backend/src/api/routes/orders.py (advance_order) |
-| 37 | POST /api/v1/orders/{order_id}/payment/proof | repo/backend/src/api/routes/payment.py (submit_payment_proof) |
-| 38 | POST /api/v1/orders/{order_id}/payment/confirm | repo/backend/src/api/routes/payment.py (confirm_payment) |
-| 39 | POST /api/v1/orders/{order_id}/voucher | repo/backend/src/api/routes/payment.py (issue_voucher) |
-| 40 | GET /api/v1/orders/{order_id}/voucher | repo/backend/src/api/routes/payment.py (get_voucher) |
-| 41 | POST /api/v1/orders/{order_id}/milestones | repo/backend/src/api/routes/payment.py (add_milestone) |
-| 42 | GET /api/v1/orders/{order_id}/milestones | repo/backend/src/api/routes/payment.py (list_milestones) |
-| 43 | POST /api/v1/orders/{order_id}/bargaining/offer | repo/backend/src/api/routes/bargaining.py (submit_offer) |
-| 44 | GET /api/v1/orders/{order_id}/bargaining | repo/backend/src/api/routes/bargaining.py (get_bargaining_thread) |
-| 45 | POST /api/v1/orders/{order_id}/bargaining/accept | repo/backend/src/api/routes/bargaining.py (accept_offer) |
-| 46 | POST /api/v1/orders/{order_id}/bargaining/counter | repo/backend/src/api/routes/bargaining.py (counter_offer) |
-| 47 | POST /api/v1/orders/{order_id}/bargaining/accept-counter | repo/backend/src/api/routes/bargaining.py (accept_counter) |
-| 48 | POST /api/v1/orders/{order_id}/refund | repo/backend/src/api/routes/refunds.py (initiate_refund) |
-| 49 | POST /api/v1/orders/{order_id}/refund/process | repo/backend/src/api/routes/refunds.py (process_refund) |
-| 50 | GET /api/v1/orders/{order_id}/refund | repo/backend/src/api/routes/refunds.py (get_refund) |
-| 51 | POST /api/v1/orders/{order_id}/after-sales | repo/backend/src/api/routes/refunds.py (submit_after_sales) |
-| 52 | GET /api/v1/orders/{order_id}/after-sales | repo/backend/src/api/routes/refunds.py (list_after_sales) |
-| 53 | POST /api/v1/orders/{order_id}/after-sales/{request_id}/resolve | repo/backend/src/api/routes/refunds.py (resolve_after_sales) |
-| 54 | GET /api/v1/queue/documents | repo/backend/src/api/routes/queue.py (pending_documents) |
-| 55 | GET /api/v1/queue/payments | repo/backend/src/api/routes/queue.py (pending_payments) |
-| 56 | GET /api/v1/queue/orders | repo/backend/src/api/routes/queue.py (pending_orders) |
-| 57 | GET /api/v1/queue/exceptions | repo/backend/src/api/routes/queue.py (pending_exceptions) |
-| 58 | GET /api/v1/queue/after-sales | repo/backend/src/api/routes/queue.py (pending_after_sales) |
-| 59 | POST /api/v1/attendance/anomalies | repo/backend/src/api/routes/attendance.py (flag_anomaly) |
-| 60 | GET /api/v1/attendance/anomalies | repo/backend/src/api/routes/attendance.py (list_anomalies) |
-| 61 | POST /api/v1/attendance/exceptions | repo/backend/src/api/routes/attendance.py (create_exception) |
-| 62 | GET /api/v1/attendance/exceptions | repo/backend/src/api/routes/attendance.py (list_exceptions) |
-| 63 | GET /api/v1/attendance/exceptions/{exception_id} | repo/backend/src/api/routes/attendance.py (get_exception) |
-| 64 | POST /api/v1/attendance/exceptions/{exception_id}/proof | repo/backend/src/api/routes/attendance.py (upload_proof) |
-| 65 | POST /api/v1/attendance/exceptions/{exception_id}/review | repo/backend/src/api/routes/attendance.py (submit_exception_review) |
-| 66 | GET /api/v1/admin/feature-flags | repo/backend/src/api/routes/admin.py (list_feature_flags) |
-| 67 | POST /api/v1/admin/feature-flags | repo/backend/src/api/routes/admin.py (create_feature_flag) |
-| 68 | PATCH /api/v1/admin/feature-flags/{key} | repo/backend/src/api/routes/admin.py (update_feature_flag) |
-| 69 | GET /api/v1/admin/cohorts | repo/backend/src/api/routes/admin.py (list_cohorts) |
-| 70 | POST /api/v1/admin/cohorts | repo/backend/src/api/routes/admin.py (create_cohort) |
-| 71 | POST /api/v1/admin/cohorts/{cohort_id}/assign | repo/backend/src/api/routes/admin.py (assign_user_to_cohort) |
-| 72 | DELETE /api/v1/admin/cohorts/{cohort_id}/users/{user_id} | repo/backend/src/api/routes/admin.py (remove_user_from_cohort) |
-| 73 | GET /api/v1/admin/config/bootstrap/{user_id} | repo/backend/src/api/routes/admin.py (get_bootstrap_config) |
-| 74 | GET /api/v1/admin/audit | repo/backend/src/api/routes/admin.py (search_audit) |
-| 75 | GET /api/v1/admin/rbac-policy | repo/backend/src/api/routes/admin.py (get_rbac_policy) |
-| 76 | GET /api/v1/admin/masking-policy | repo/backend/src/api/routes/admin.py (get_masking_policy) |
-| 77 | POST /api/v1/admin/exports | repo/backend/src/api/routes/admin.py (create_export) |
-| 78 | GET /api/v1/admin/exports | repo/backend/src/api/routes/admin.py (list_exports) |
-| 79 | GET /api/v1/admin/exports/{export_id}/download | repo/backend/src/api/routes/admin.py (download_export) |
-| 80 | GET /api/v1/admin/metrics/summary | repo/backend/src/api/routes/admin.py (get_metrics_summary) |
-| 81 | GET /api/v1/admin/traces | repo/backend/src/api/routes/admin.py (list_traces) |
-| 82 | GET /api/v1/admin/cache-stats | repo/backend/src/api/routes/admin.py (get_cache_stats) |
-| 83 | GET /api/v1/admin/access-logs | repo/backend/src/api/routes/admin.py (get_access_log_summaries) |
-| 84 | GET /api/v1/admin/forecasts | repo/backend/src/api/routes/admin.py (list_forecasts) |
-| 85 | POST /api/v1/admin/forecasts/compute | repo/backend/src/api/routes/admin.py (trigger_forecast) |
+| 17 | POST /api/v1/candidates/self | repo/backend/src/api/routes/candidates.py (create_own_candidate_profile) |
+| 18 | GET /api/v1/candidates/{candidate_id} | repo/backend/src/api/routes/candidates.py (get_candidate_profile) |
+| 19 | PATCH /api/v1/candidates/{candidate_id} | repo/backend/src/api/routes/candidates.py (update_candidate_profile) |
+| 20 | GET /api/v1/candidates/{candidate_id}/exam-scores | repo/backend/src/api/routes/candidates.py (list_exam_scores) |
+| 21 | POST /api/v1/candidates/{candidate_id}/exam-scores | repo/backend/src/api/routes/candidates.py (add_exam_score) |
+| 22 | GET /api/v1/candidates/{candidate_id}/transfer-preferences | repo/backend/src/api/routes/candidates.py (list_transfer_preferences) |
+| 23 | POST /api/v1/candidates/{candidate_id}/transfer-preferences | repo/backend/src/api/routes/candidates.py (add_transfer_preference) |
+| 24 | PATCH /api/v1/candidates/{candidate_id}/transfer-preferences/{pref_id} | repo/backend/src/api/routes/candidates.py (update_transfer_preference) |
+| 25 | GET /api/v1/candidates/{candidate_id}/checklist | repo/backend/src/api/routes/candidates.py (get_checklist) |
+| 26 | POST /api/v1/candidates/{candidate_id}/documents/upload | repo/backend/src/api/routes/documents.py (upload_document) |
+| 27 | GET /api/v1/candidates/{candidate_id}/documents | repo/backend/src/api/routes/documents.py (list_documents) |
+| 28 | GET /api/v1/candidates/{candidate_id}/documents/{document_id} | repo/backend/src/api/routes/documents.py (get_document) |
+| 29 | POST /api/v1/documents/{document_id}/review | repo/backend/src/api/routes/documents.py (review_document) |
+| 30 | GET /api/v1/documents/{document_id}/download | repo/backend/src/api/routes/documents.py (download_document) |
+| 31 | GET /api/v1/services | repo/backend/src/api/routes/orders.py (list_service_items) |
+| 32 | POST /api/v1/orders | repo/backend/src/api/routes/orders.py (create_order) |
+| 33 | GET /api/v1/orders | repo/backend/src/api/routes/orders.py (list_orders) |
+| 34 | GET /api/v1/orders/{order_id} | repo/backend/src/api/routes/orders.py (get_order) |
+| 35 | POST /api/v1/orders/{order_id}/cancel | repo/backend/src/api/routes/orders.py (cancel_order) |
+| 36 | POST /api/v1/orders/{order_id}/confirm-receipt | repo/backend/src/api/routes/orders.py (confirm_receipt) |
+| 37 | POST /api/v1/orders/{order_id}/advance | repo/backend/src/api/routes/orders.py (advance_order) |
+| 38 | POST /api/v1/orders/{order_id}/payment/proof | repo/backend/src/api/routes/payment.py (submit_payment_proof) |
+| 39 | POST /api/v1/orders/{order_id}/payment/confirm | repo/backend/src/api/routes/payment.py (confirm_payment) |
+| 40 | POST /api/v1/orders/{order_id}/voucher | repo/backend/src/api/routes/payment.py (issue_voucher) |
+| 41 | GET /api/v1/orders/{order_id}/voucher | repo/backend/src/api/routes/payment.py (get_voucher) |
+| 42 | POST /api/v1/orders/{order_id}/milestones | repo/backend/src/api/routes/payment.py (add_milestone) |
+| 43 | GET /api/v1/orders/{order_id}/milestones | repo/backend/src/api/routes/payment.py (list_milestones) |
+| 44 | POST /api/v1/orders/{order_id}/bargaining/offer | repo/backend/src/api/routes/bargaining.py (submit_offer) |
+| 45 | GET /api/v1/orders/{order_id}/bargaining | repo/backend/src/api/routes/bargaining.py (get_bargaining_thread) |
+| 46 | POST /api/v1/orders/{order_id}/bargaining/accept | repo/backend/src/api/routes/bargaining.py (accept_offer) |
+| 47 | POST /api/v1/orders/{order_id}/bargaining/counter | repo/backend/src/api/routes/bargaining.py (counter_offer) |
+| 48 | POST /api/v1/orders/{order_id}/bargaining/accept-counter | repo/backend/src/api/routes/bargaining.py (accept_counter) |
+| 49 | POST /api/v1/orders/{order_id}/refund | repo/backend/src/api/routes/refunds.py (initiate_refund) |
+| 50 | POST /api/v1/orders/{order_id}/refund/process | repo/backend/src/api/routes/refunds.py (process_refund) |
+| 51 | GET /api/v1/orders/{order_id}/refund | repo/backend/src/api/routes/refunds.py (get_refund) |
+| 52 | POST /api/v1/orders/{order_id}/after-sales | repo/backend/src/api/routes/refunds.py (submit_after_sales) |
+| 53 | GET /api/v1/orders/{order_id}/after-sales | repo/backend/src/api/routes/refunds.py (list_after_sales) |
+| 54 | POST /api/v1/orders/{order_id}/after-sales/{request_id}/resolve | repo/backend/src/api/routes/refunds.py (resolve_after_sales) |
+| 55 | GET /api/v1/queue/documents | repo/backend/src/api/routes/queue.py (pending_documents) |
+| 56 | GET /api/v1/queue/payments | repo/backend/src/api/routes/queue.py (pending_payments) |
+| 57 | GET /api/v1/queue/orders | repo/backend/src/api/routes/queue.py (pending_orders) |
+| 58 | GET /api/v1/queue/exceptions | repo/backend/src/api/routes/queue.py (pending_exceptions) |
+| 59 | GET /api/v1/queue/after-sales | repo/backend/src/api/routes/queue.py (pending_after_sales) |
+| 60 | POST /api/v1/attendance/anomalies | repo/backend/src/api/routes/attendance.py (flag_anomaly) |
+| 61 | GET /api/v1/attendance/anomalies | repo/backend/src/api/routes/attendance.py (list_anomalies) |
+| 62 | POST /api/v1/attendance/exceptions | repo/backend/src/api/routes/attendance.py (create_exception) |
+| 63 | GET /api/v1/attendance/exceptions | repo/backend/src/api/routes/attendance.py (list_exceptions) |
+| 64 | GET /api/v1/attendance/exceptions/{exception_id} | repo/backend/src/api/routes/attendance.py (get_exception) |
+| 65 | POST /api/v1/attendance/exceptions/{exception_id}/proof | repo/backend/src/api/routes/attendance.py (upload_proof) |
+| 66 | POST /api/v1/attendance/exceptions/{exception_id}/review | repo/backend/src/api/routes/attendance.py (submit_exception_review) |
+| 67 | GET /api/v1/admin/feature-flags | repo/backend/src/api/routes/admin.py (list_feature_flags) |
+| 68 | POST /api/v1/admin/feature-flags | repo/backend/src/api/routes/admin.py (create_feature_flag) |
+| 69 | PATCH /api/v1/admin/feature-flags/{key} | repo/backend/src/api/routes/admin.py (update_feature_flag) |
+| 70 | GET /api/v1/admin/cohorts | repo/backend/src/api/routes/admin.py (list_cohorts) |
+| 71 | POST /api/v1/admin/cohorts | repo/backend/src/api/routes/admin.py (create_cohort) |
+| 72 | POST /api/v1/admin/cohorts/{cohort_id}/assign | repo/backend/src/api/routes/admin.py (assign_user_to_cohort) |
+| 73 | DELETE /api/v1/admin/cohorts/{cohort_id}/users/{user_id} | repo/backend/src/api/routes/admin.py (remove_user_from_cohort) |
+| 74 | GET /api/v1/admin/config/bootstrap/{user_id} | repo/backend/src/api/routes/admin.py (get_bootstrap_config) |
+| 75 | GET /api/v1/admin/audit | repo/backend/src/api/routes/admin.py (search_audit) |
+| 76 | GET /api/v1/admin/rbac-policy | repo/backend/src/api/routes/admin.py (get_rbac_policy) |
+| 77 | GET /api/v1/admin/masking-policy | repo/backend/src/api/routes/admin.py (get_masking_policy) |
+| 78 | POST /api/v1/admin/exports | repo/backend/src/api/routes/admin.py (create_export) |
+| 79 | GET /api/v1/admin/exports | repo/backend/src/api/routes/admin.py (list_exports) |
+| 80 | GET /api/v1/admin/exports/{export_id}/download | repo/backend/src/api/routes/admin.py (download_export) |
+| 81 | GET /api/v1/admin/metrics/summary | repo/backend/src/api/routes/admin.py (get_metrics_summary) |
+| 82 | GET /api/v1/admin/traces | repo/backend/src/api/routes/admin.py (list_traces) |
+| 83 | GET /api/v1/admin/cache-stats | repo/backend/src/api/routes/admin.py (get_cache_stats) |
+| 84 | GET /api/v1/admin/access-logs | repo/backend/src/api/routes/admin.py (get_access_log_summaries) |
+| 85 | GET /api/v1/admin/forecasts | repo/backend/src/api/routes/admin.py (list_forecasts) |
+| 86 | POST /api/v1/admin/forecasts/compute | repo/backend/src/api/routes/admin.py (trigger_forecast) |
 
 ## API Test Mapping Table
 Coverage criterion: exact METHOD + PATH request call to routed handler.
@@ -117,6 +118,7 @@ Coverage criterion: exact METHOD + PATH request call to routed handler.
 | GET /api/v1/idp/jwks | yes | true no-mock HTTP | test_idp_jwks.py, test_idp_token.py | test_jwks_is_well_formed |
 | GET /api/v1/candidates | yes | true no-mock HTTP | test_candidates.py | test_list_candidates_reviewer_sees_all |
 | POST /api/v1/candidates | yes | true no-mock HTTP | test_candidates.py | test_create_ok |
+| POST /api/v1/candidates/self | yes | true no-mock HTTP | test_candidates.py | test_candidate_self_profile_init |
 | GET /api/v1/candidates/{candidate_id} | yes | true no-mock HTTP | test_candidates.py | test_get_ok |
 | PATCH /api/v1/candidates/{candidate_id} | yes | true no-mock HTTP | test_candidates.py | test_patch_profile |
 | GET /api/v1/candidates/{candidate_id}/exam-scores | yes | true no-mock HTTP | test_candidates.py | test_list_exam_scores |
@@ -132,7 +134,7 @@ Coverage criterion: exact METHOD + PATH request call to routed handler.
 | GET /api/v1/documents/{document_id}/download | yes | true no-mock HTTP | test_documents.py | test_download_ok |
 | GET /api/v1/services | yes | true no-mock HTTP | test_orders.py | test_list_service_items |
 | POST /api/v1/orders | yes | true no-mock HTTP | test_orders.py, test_signed_route_success.py | test_create_order_fixed_price |
-| GET /api/v1/orders | no | none | none | No direct client.get('/api/v1/orders') request found in repo/backend/api_tests/*.py |
+| GET /api/v1/orders | yes | true no-mock HTTP | test_orders.py | test_list_orders_candidate_sees_only_owned_orders |
 | GET /api/v1/orders/{order_id} | yes | true no-mock HTTP | test_orders.py, test_payment.py, test_refund_after_sales.py | test_order_row_scope |
 | POST /api/v1/orders/{order_id}/cancel | yes | true no-mock HTTP | test_orders.py | test_cancel_order |
 | POST /api/v1/orders/{order_id}/confirm-receipt | yes | true no-mock HTTP | test_refund_after_sales.py | test_confirm_receipt_completes_order |
@@ -214,14 +216,14 @@ Coverage criterion: exact METHOD + PATH request call to routed handler.
 Strict classification effect: these do not constitute HTTP transport/controller/service mocking for project endpoint execution.
 
 ## Coverage Summary
-- Total endpoints: 85
-- Endpoints with HTTP tests: 84
-- Endpoints with true no-mock HTTP tests: 84
-- HTTP coverage: 98.82% (84/85)
-- True API coverage: 98.82% (84/85)
+- Total endpoints: 86
+- Endpoints with HTTP tests: 86
+- Endpoints with true no-mock HTTP tests: 86
+- HTTP coverage: 100.00% (86/86)
+- True API coverage: 100.00% (86/86)
 
-Uncovered endpoint:
-- GET /api/v1/orders
+Uncovered endpoints:
+- None
 
 ## Unit Test Summary
 

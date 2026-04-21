@@ -40,7 +40,7 @@
 - Device rotate route is now explicitly tested (signed success and unsigned rejection).
   - Evidence: `repo/backend/api_tests/test_device_flow.py:326`, `repo/backend/api_tests/test_device_flow.py:371`
 - Service catalog endpoint `/api/v1/services` is now explicitly tested.
-  - Evidence: `repo/backend/api_tests/test_orders.py:271`, `repo/backend/api_tests/test_orders.py:276`
+  - Evidence: `repo/backend/api_tests/test_orders.py:328`, `repo/backend/api_tests/test_orders.py:333`
 
 #### Conclusion
 - The specific endpoint coverage gaps cited in report-1 are now closed.
@@ -70,9 +70,9 @@
 
 #### Verification
 - Explicit `GET /api/v1/services` API test exists.
-  - Evidence: `repo/backend/api_tests/test_orders.py:271`, `repo/backend/api_tests/test_orders.py:276`
+  - Evidence: `repo/backend/api_tests/test_orders.py:328`, `repo/backend/api_tests/test_orders.py:333`
 - Traceability entry maps service endpoint to `test_orders.py`.
-  - Evidence: `docs/test-traceability.md:403`
+  - Evidence: `docs/test-traceability.md:88`
 
 #### Conclusion
 - This issue is resolved.
